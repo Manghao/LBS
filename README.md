@@ -1,5 +1,5 @@
 # LBS
-Projet JEE - LP CISIIE - 201/2018
+Projet JEE - LP CISIIE - 2017/2018
 
 ## Groupe
 * BAIER Geoffrey
