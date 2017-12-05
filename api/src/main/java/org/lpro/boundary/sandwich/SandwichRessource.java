@@ -25,7 +25,7 @@ public class SandwichRessource {
     public Response getSandwichs() {
         JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
-                .add("meta", this.getMeta())
+                .add("meta", this.sm.getMeta())
                 .add("sandwichs", this.getSandwichsList())
                 .build();
         return Response.ok(json).build();
@@ -39,13 +39,21 @@ public class SandwichRessource {
         return jab.build();
     }
 
-    private JsonObject buildJson(Sandwich c) {
+    private JsonObject buildJson(Sandwich s) {
         return Json.createObjectBuilder()
-                .add("id", c.getId())
-                .add("nom", c.getNom())
-                .add("description", c.getDescription())
-                .add("type_pain", c.getPain())
+                .add("sandwich", Json.createObjectBuilder()
+                        .add("id", s.getId())
+                        .add("nom", s.getNom())
+                        .add("description", s.getDescription())
+                        .add("type_pain", s.getPain())
+                        .build())
+                .add("links", Json.createObjectBuilder()
+                        .add("self", Json.createObjectBuilder()
+                                .add("href", ((s.getImg() == null) ? "" : s.getImg()))
+                                .build())
+                        .build())
                 .build();
     }
+
 
 }

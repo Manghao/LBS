@@ -30,6 +30,8 @@ public class Sandwich {
 
     private String img;
 
+    public Sandwich() { }
+
     public Sandwich(long id, String nom, String type_pain, String description, String img) {
         this.id = id;
         this.type_pain = type_pain;
