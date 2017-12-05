@@ -1,6 +1,6 @@
 package org.lpro.boundary.sandwich;
 
-import org.lpro.boundary.sandwich.exception.SandwichNotFound;
+import org.lpro.boundary.sandwich.exception.SandwichNotFoun
 import org.lpro.entity.Sandwich;
 
 import javax.ejb.Stateless;
@@ -14,6 +14,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Optional;
@@ -31,13 +32,24 @@ public class SandwichRessource {
     public Response getSandwichs() {
         JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
-                .add("meta", this.sm.getMeta())
-                .add("sandwichs", this.getSandwichsList())
+                .add("meta", this.sm.getMeta(-1))
+                .add("sandwichs", this.getSandwichsList(this.sm.findAll()))
                 .build();
         return Response.ok(json).build();
     }
 
     @GET
+    @Produces("application/json")
+    public Response getSandwichs(@QueryParam("pain") String ptype) {
+        List<Sandwich> sandwichs = this.sm.findByTypePain(ptype);
+        JsonObject json = Json.createObjectBuilder()
+                .add("type", "collection")
+                .add("meta", this.sm.getMeta(sandwichs.size()))
+                .add("sandwichs", this.getSandwichsList(sandwichs))
+                .build();
+        return Response.ok(json).build();
+    }
+  
     @Path("{id}")
     public Response getOneSandwich(@PathParam("id") long id, @Context UriInfo uriInfo) {
         return Optional.ofNullable(sm.findById(id))
@@ -67,27 +79,33 @@ public class SandwichRessource {
         return this.sm.save(s);
     }
 
-    private JsonArray getSandwichsList() {
+    private JsonArray getSandwichsList(List<Sandwich> sandwichs) {
         JsonArrayBuilder jab = Json.createArrayBuilder();
-        this.sm.findAll().forEach((s) -> {
+        sandwichs.forEach((s) -> {
             jab.add(buildJson(s));
         });
         return jab.build();
     }
 
     private JsonObject buildJson(Sandwich s) {
+        JsonObject details = Json.createObjectBuilder()
+                .add("id", s.getId())
+                .add("nom", s.getNom())
+                .add("description", s.getDescription())
+                .add("type_pain", s.getPain())
+                .build();
+
+        JsonObject href = Json.createObjectBuilder()
+                .add("href", ((s.getImg() == null) ? "" : s.getImg()))
+                .build();
+
+        JsonObject self = Json.createObjectBuilder()
+                .add("self", href)
+                .build();
+
         return Json.createObjectBuilder()
-                .add("sandwich", Json.createObjectBuilder()
-                        .add("id", s.getId())
-                        .add("nom", s.getNom())
-                        .add("description", s.getDescription())
-                        .add("type_pain", s.getPain())
-                        .build())
-                .add("links", Json.createObjectBuilder()
-                        .add("self", Json.createObjectBuilder()
-                                .add("href", ((s.getImg() == null) ? "" : s.getImg()))
-                                .build())
-                        .build())
+                .add("sandwich", details)
+                .add("links", self)
                 .build();
     }
 

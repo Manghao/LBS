@@ -23,7 +23,7 @@ public class Sandwich implements Serializable {
     private String nom;
 
     @NotNull
-    private String type_pain;
+    private String pain;
 
     @NotNull
     private String description;
@@ -32,9 +32,9 @@ public class Sandwich implements Serializable {
 
     public Sandwich() { }
 
-    public Sandwich(long id, String nom, String type_pain, String description, String img) {
+    public Sandwich(long id, String nom, String pain, String description, String img) {
         this.id = id;
-        this.type_pain = type_pain;
+        this.pain = pain;
         this.description = description;
         this.img = img;
     }
@@ -56,11 +56,11 @@ public class Sandwich implements Serializable {
     }
 
     public String getPain() {
-        return type_pain;
+        return pain;
     }
 
-    public void setPain(String type_pain) {
-        this.type_pain = type_pain;
+    public void setPain(String pain) {
+        this.pain = pain;
     }
 
     public String getDescription() {

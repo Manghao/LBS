@@ -24,6 +24,12 @@ public class SandwichManager {
         return this.em.find(Sandwich.class, id);
     }
 
+    public List<Sandwich> findByTypePain(String pain) {
+        Query query = this.em.createQuery("SELECT s FROM Sandwich s WHERE s.pain = :pain");
+        query.setParameter("pain", pain);
+        return query.getResultList();
+    }
+  
     public Sandwich save(Sandwich s) {
         s.setId(this.findAll().get(this.findAll().size() - 1).getId() + 1);
         return this.em.merge(s);
@@ -36,9 +42,9 @@ public class SandwichManager {
         } catch (EntityNotFoundException e) { }
     }
 
-    public JsonObject getMeta() {
+    public JsonObject getMeta(long size) {
         return Json.createObjectBuilder()
-                .add("count", this.findAll().size())
+                .add("count", ((size == -1) ? this.findAll().size() : size))
                 .add("date",  "05-12-2017")
                 .build();
     }
