@@ -1,4 +1,4 @@
-package org.lpro.boundary.categorie.mapper;
+package org.lpro.boundary.mapper;
 
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.Response;

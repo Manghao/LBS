@@ -5,10 +5,7 @@ import org.lpro.entity.Sandwich;
 import javax.ejb.Stateless;
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.persistence.CacheStoreMode;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import javax.persistence.*;
 import java.util.List;
 
 @Stateless
@@ -31,6 +28,18 @@ public class SandwichManager {
         Query query = this.em.createQuery("SELECT s FROM Sandwich s WHERE s.pain = :pain");
         query.setParameter("pain", pain);
         return query.getResultList();
+    }
+  
+    public Sandwich save(Sandwich s) {
+        s.setId(this.findAll().get(this.findAll().size() - 1).getId() + 1);
+        return this.em.merge(s);
+    }
+
+    public void delete(long id) {
+        try {
+            Sandwich ref = this.em.getReference(Sandwich.class, id);
+            this.em.remove(ref);
+        } catch (EntityNotFoundException e) { }
     }
 
     public JsonObject getMeta(long size) {
