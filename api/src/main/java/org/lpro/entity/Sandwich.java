@@ -28,7 +28,6 @@ public class Sandwich {
     @NotNull
     private String description;
 
-    @NotNull
     private String img;
 
     public Sandwich(long id, String nom, String type_pain, String description, String img) {
