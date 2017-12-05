@@ -6,7 +6,6 @@ import org.lpro.entity.Categorie;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.json.*;
-import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;

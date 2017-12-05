@@ -1,5 +1,6 @@
 package org.lpro.boundary.sandwich;
 
+import org.lpro.boundary.sandwich.exception.SandwichNotFound;
 import org.lpro.entity.Sandwich;
 
 import javax.ejb.Stateless;
@@ -9,8 +10,11 @@ import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.util.Optional;
 
 @Stateless
 @Path("sandwichs")
@@ -29,6 +33,14 @@ public class SandwichRessource {
                 .add("sandwichs", this.getSandwichsList())
                 .build();
         return Response.ok(json).build();
+    }
+
+    @GET
+    @Path("{id}")
+    public Response getOneSandwich(@PathParam("id") long id, @Context UriInfo uriInfo) {
+        return Optional.ofNullable(sm.findById(id))
+                .map(s -> Response.ok(sandwich2Json(s)).build())
+                .orElseThrow(() -> new SandwichNotFound("Ressource non disponible" + uriInfo.getPath()));
     }
 
     private JsonArray getSandwichsList() {
@@ -55,5 +67,15 @@ public class SandwichRessource {
                 .build();
     }
 
-
+    private JsonObject sandwich2Json(Sandwich s) {
+        return Json.createObjectBuilder()
+                .add("type", "resource")
+                .add("sandwich", Json.createObjectBuilder()
+                        .add("id", s.getId())
+                        .add("nom", s.getNom())
+                        .add("description", s.getDescription())
+                        .add("type_pain", s.getPain())
+                        .build())
+                .build();
+    }
 }
