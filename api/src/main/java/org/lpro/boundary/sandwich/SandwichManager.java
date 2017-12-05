@@ -10,6 +10,4 @@ public class SandwichManager {
     @PersistenceContext
     EntityManager em;
 
-
-
 }
