@@ -9,11 +9,13 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
+import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.Optional;
 
 @Stateless
@@ -41,6 +43,28 @@ public class SandwichRessource {
         return Optional.ofNullable(sm.findById(id))
                 .map(s -> Response.ok(sandwich2Json(s)).build())
                 .orElseThrow(() -> new SandwichNotFound("Ressource non disponible" + uriInfo.getPath()));
+    }
+
+    @POST
+    public Response newSandwich(@Valid Sandwich s, @Context UriInfo uriInfo) {
+        Sandwich sand = this.sm.save(s);
+        long id = sand.getId();
+        URI uri = uriInfo.getAbsolutePathBuilder().path("/" + id).build();
+        return Response.created(uri).build();
+    }
+
+    @DELETE
+    @Path("{id}")
+    public Response removeSandwich(@PathParam("id") long id) {
+        this.sm.delete(id);
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    @PUT
+    @Path("{id}")
+    public Sandwich update(@PathParam("id") long id, Sandwich s) {
+        s.setId(id);
+        return this.sm.save(s);
     }
 
     private JsonArray getSandwichsList() {
@@ -75,6 +99,11 @@ public class SandwichRessource {
                         .add("nom", s.getNom())
                         .add("description", s.getDescription())
                         .add("type_pain", s.getPain())
+                        .build())
+                .add("links", Json.createObjectBuilder()
+                        .add("self", Json.createObjectBuilder()
+                                .add("href", ((s.getImg() == null) ? "" : s.getImg()))
+                                .build())
                         .build())
                 .build();
     }
