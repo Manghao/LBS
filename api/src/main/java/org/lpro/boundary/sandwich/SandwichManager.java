@@ -30,10 +30,18 @@ public class SandwichManager {
         return query.getResultList();
     }
 
-    public List<Sandwich> findAllPerPage(int page, int size) {
+    public List<Sandwich> findAllPerPage(int page, int nbPerPage) {
         Query query = this.em.createNamedQuery("Sandwich.findAll", Sandwich.class);
-        query.setFirstResult((page-1) * size);
-        query.setMaxResults(size);
+
+        if (page <= 0) {
+            page = 1;
+        }
+        else if (page > this.findAll().size() / nbPerPage + 1) {
+            page = this.findAll().size() / nbPerPage + 1;
+        }
+
+        query.setFirstResult((page-1) * nbPerPage);
+        query.setMaxResults(nbPerPage);
         return query.getResultList();
     }
   
@@ -56,4 +64,10 @@ public class SandwichManager {
                 .build();
     }
 
+    public JsonObject getMetaPerPage(long size, int nbPerPage) {
+        return Json.createObjectBuilder()
+                .add("count", ((size == -1) ? this.findAll().size() : size))
+                .add("size", nbPerPage)
+                .build();
+    }
 }

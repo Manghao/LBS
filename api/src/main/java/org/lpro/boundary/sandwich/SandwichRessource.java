@@ -29,15 +29,18 @@ public class SandwichRessource {
     SandwichManager sm;
 
     @GET
-    public Response getSandwichs(@DefaultValue("0") @QueryParam("page") int page, @DefaultValue("10") @QueryParam("size") int size) {
-        JsonArray listSandwichs = this.getSandwichsList(this.sm.findAll());
-        if (page > 0) {
-            listSandwichs = this.getSandwichsList(this.sm.findAllPerPage(page, size));
-        }
-        JsonObject json = Json.createObjectBuilder()
+    public Response getSandwichs(@DefaultValue("1") @QueryParam("page") int page, @DefaultValue("10") @QueryParam("size") int nbPerPage) {
+        /*JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
                 .add("meta", this.sm.getMeta(-1))
-                .add("sandwichs", listSandwichs)
+                .add("sandwichs", this.getSandwichsList(this.sm.findAll()))
+                .build();
+        return Response.ok(json).build();*/
+
+        JsonObject json = Json.createObjectBuilder()
+                .add("type", "collection")
+                .add("meta", this.sm.getMetaPerPage(-1, nbPerPage))
+                .add("sandwichs", this.getSandwichsList(this.sm.findAllPerPage(page, nbPerPage)))
                 .build();
         return Response.ok(json).build();
     }
@@ -66,7 +69,7 @@ public class SandwichRessource {
                 .build();
         return Response.ok(json).build();
     }*/
-  
+
     @Path("{id}")
     public Response getOneSandwich(@PathParam("id") long id, @Context UriInfo uriInfo) {
         return Optional.ofNullable(sm.findById(id))
