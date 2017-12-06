@@ -29,6 +29,13 @@ public class SandwichManager {
         query.setParameter("pain", pain);
         return query.getResultList();
     }
+
+    public List<Sandwich> findAllPerPage(int page, int size) {
+        Query query = this.em.createNamedQuery("Sandwich.findAll", Sandwich.class);
+        query.setFirstResult((page-1) * size);
+        query.setMaxResults(size);
+        return query.getResultList();
+    }
   
     public Sandwich save(Sandwich s) {
         s.setId(this.findAll().get(this.findAll().size() - 1).getId() + 1);

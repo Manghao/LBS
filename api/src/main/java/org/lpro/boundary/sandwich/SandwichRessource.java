@@ -1,6 +1,6 @@
 package org.lpro.boundary.sandwich;
 
-import org.lpro.boundary.sandwich.exception.SandwichNotFoun
+import org.lpro.boundary.sandwich.exception.SandwichNotFound;
 import org.lpro.entity.Sandwich;
 
 import javax.ejb.Stateless;
@@ -29,16 +29,22 @@ public class SandwichRessource {
     SandwichManager sm;
 
     @GET
-    public Response getSandwichs() {
+    public Response getSandwichs(@DefaultValue("0") @QueryParam("page") int page, @DefaultValue("10") @QueryParam("size") int size) {
+        JsonArray listSandwichs = this.getSandwichsList(this.sm.findAll());
+        if (page > 0) {
+            listSandwichs = this.getSandwichsList(this.sm.findAllPerPage(page, size));
+        }
         JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
                 .add("meta", this.sm.getMeta(-1))
-                .add("sandwichs", this.getSandwichsList(this.sm.findAll()))
+                .add("sandwichs", listSandwichs)
                 .build();
         return Response.ok(json).build();
     }
 
-    @GET
+    // J'ai mis en commentaires car les méthodes ont le même nom et donc ça ne marche pas
+    // Et avec un nom différent les méthodes ci-dessous ne sont pas appelées
+    /*@GET
     @Produces("application/json")
     public Response getSandwichs(@QueryParam("pain") String ptype) {
         List<Sandwich> sandwichs = this.sm.findByTypePain(ptype);
@@ -49,6 +55,17 @@ public class SandwichRessource {
                 .build();
         return Response.ok(json).build();
     }
+
+    @GET
+    @Produces("application/json")
+    public Response getSandwichs(@QueryParam("page") int page, @DefaultValue("10") @QueryParam("size") int size) {
+        JsonObject json = Json.createObjectBuilder()
+                .add("type", "collection")
+                .add("meta", this.sm.getMeta(-1))
+                .add("sandwichs", this.getSandwichsList(this.sm.findAllPerPage(page, size)))
+                .build();
+        return Response.ok(json).build();
+    }*/
   
     @Path("{id}")
     public Response getOneSandwich(@PathParam("id") long id, @Context UriInfo uriInfo) {
@@ -92,7 +109,7 @@ public class SandwichRessource {
                 .add("id", s.getId())
                 .add("nom", s.getNom())
                 .add("description", s.getDescription())
-                .add("type_pain", s.getPain())
+                .add("pain", s.getPain())
                 .build();
 
         JsonObject href = Json.createObjectBuilder()
@@ -116,7 +133,7 @@ public class SandwichRessource {
                         .add("id", s.getId())
                         .add("nom", s.getNom())
                         .add("description", s.getDescription())
-                        .add("type_pain", s.getPain())
+                        .add("pain", s.getPain())
                         .build())
                 .add("links", Json.createObjectBuilder()
                         .add("self", Json.createObjectBuilder()
