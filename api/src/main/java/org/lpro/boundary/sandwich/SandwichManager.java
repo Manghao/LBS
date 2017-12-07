@@ -33,11 +33,13 @@ public class SandwichManager {
     public List<Sandwich> findAllPerPage(int page, int nbPerPage) {
         Query query = this.em.createNamedQuery("Sandwich.findAll", Sandwich.class);
 
+        double nbSandwichs = this.findAll().size();
+
         if (page <= 0) {
             page = 1;
         }
-        else if (page > this.findAll().size() / nbPerPage + 1) {
-            page = this.findAll().size() / nbPerPage + 1;
+        else if (page > Math.ceil(nbSandwichs / (double) nbPerPage)) {
+            page = (int) Math.ceil(nbSandwichs / (double) nbPerPage);
         }
 
         query.setFirstResult((page-1) * nbPerPage);
