@@ -39,7 +39,7 @@ public class SandwichRessource {
 
         JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
-                .add("meta", this.sm.getMetaPerPage(-1, nbPerPage))
+                .add("meta", this.sm.getMetaPerPage(-1, page, nbPerPage))
                 .add("sandwichs", this.getSandwichsList(this.sm.findAllPerPage(page, nbPerPage)))
                 .build();
         return Response.ok(json).build();

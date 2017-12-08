@@ -66,10 +66,10 @@ public class SandwichManager {
                 .build();
     }
 
-    public JsonObject getMetaPerPage(long size, int nbPerPage) {
+    public JsonObject getMetaPerPage(long size, int page, int nbPerPage) {
         return Json.createObjectBuilder()
                 .add("count", ((size == -1) ? this.findAll().size() : size))
-                .add("size", nbPerPage)
+                .add("size", this.findAllPerPage(page, nbPerPage).size())
                 .build();
     }
 }
