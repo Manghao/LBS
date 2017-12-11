@@ -1,6 +1,6 @@
 package org.lpro.boundary.sandwich;
 
-import org.lpro.boundary.categorie.exception.CategorieNotFound;
+import org.lpro.boundary.sandwich.exception.SandwichNotFound;
 import org.lpro.entity.Sandwich;
 
 import javax.ejb.Stateless;
@@ -9,11 +9,14 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
+import javax.validation.Valid;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 
 @Stateless
 @Path("sandwichs")
@@ -25,16 +28,21 @@ public class SandwichRessource {
     SandwichManager sm;
 
     @GET
-    public Response getSandwichs() {
+    public Response getSandwichs(
+            @DefaultValue("1") @QueryParam("page") int page,
+            @DefaultValue("10") @QueryParam("size") int nbPerPage,
+            @DefaultValue("all") @QueryParam("t") String ptype,
+            @DefaultValue("0") @QueryParam("img") int img
+    ) {
         JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
-                .add("meta", this.sm.getMeta(-1))
-                .add("sandwichs", this.getSandwichsList(this.sm.findAll()))
+                .add("meta", this.sm.getMetaPerPage(-1, page, nbPerPage))
+                .add("sandwichs", this.getSandwichsList(this.sm.findWithParam(ptype, img, page, nbPerPage)))
                 .build();
         return Response.ok(json).build();
     }
 
-    @GET
+    /*@GET
     @Produces("application/json")
     public Response getSandwichs(@QueryParam("t") String ptype) {
         List<Sandwich> sandwichs = this.sm.findByTypePain(ptype);
@@ -44,6 +52,35 @@ public class SandwichRessource {
                 .add("sandwichs", this.getSandwichsList(sandwichs))
                 .build();
         return Response.ok(json).build();
+    }*/
+
+    @Path("{id}")
+    public Response getOneSandwich(@PathParam("id") long id, @Context UriInfo uriInfo) {
+        return Optional.ofNullable(sm.findById(id))
+                .map(s -> Response.ok(sandwich2Json(s)).build())
+                .orElseThrow(() -> new SandwichNotFound("Ressource non disponible" + uriInfo.getPath()));
+    }
+
+    @POST
+    public Response newSandwich(@Valid Sandwich s, @Context UriInfo uriInfo) {
+        Sandwich sand = this.sm.save(s);
+        long id = sand.getId();
+        URI uri = uriInfo.getAbsolutePathBuilder().path("/" + id).build();
+        return Response.created(uri).build();
+    }
+
+    @DELETE
+    @Path("{id}")
+    public Response removeSandwich(@PathParam("id") long id) {
+        this.sm.delete(id);
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    @PUT
+    @Path("{id}")
+    public Sandwich update(@PathParam("id") long id, Sandwich s) {
+        s.setId(id);
+        return this.sm.save(s);
     }
 
     private JsonArray getSandwichsList(List<Sandwich> sandwichs) {
@@ -59,7 +96,7 @@ public class SandwichRessource {
                 .add("id", s.getId())
                 .add("nom", s.getNom())
                 .add("description", s.getDescription())
-                .add("type_pain", s.getPain())
+                .add("pain", s.getPain())
                 .build();
 
         JsonObject href = Json.createObjectBuilder()
@@ -76,5 +113,20 @@ public class SandwichRessource {
                 .build();
     }
 
-
+    private JsonObject sandwich2Json(Sandwich s) {
+        return Json.createObjectBuilder()
+                .add("type", "resource")
+                .add("sandwich", Json.createObjectBuilder()
+                        .add("id", s.getId())
+                        .add("nom", s.getNom())
+                        .add("description", s.getDescription())
+                        .add("pain", s.getPain())
+                        .build())
+                .add("links", Json.createObjectBuilder()
+                        .add("self", Json.createObjectBuilder()
+                                .add("href", ((s.getImg() == null) ? "" : s.getImg()))
+                                .build())
+                        .build())
+                .build();
+    }
 }

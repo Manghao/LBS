@@ -1,22 +1,21 @@
 package org.lpro.entity;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
 
 @Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @NamedQuery(name="Sandwich.findAll",query="SELECT s FROM Sandwich s")
-public class Sandwich {
+public class Sandwich implements Serializable {
 
     @Id
-    @GeneratedValue
     private long id;
 
     @NotNull
