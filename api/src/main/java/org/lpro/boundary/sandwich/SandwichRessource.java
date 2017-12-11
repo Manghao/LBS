@@ -14,10 +14,9 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
+import java.util.*;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
-import java.util.Optional;
 
 @Stateless
 @Path("sandwichs")
@@ -29,43 +28,28 @@ public class SandwichRessource {
     SandwichManager sm;
 
     @GET
-    public Response getSandwichs(@DefaultValue("1") @QueryParam("page") int page, @DefaultValue("10") @QueryParam("size") int nbPerPage) {
-        /*JsonObject json = Json.createObjectBuilder()
-                .add("type", "collection")
-                .add("meta", this.sm.getMeta(-1))
-                .add("sandwichs", this.getSandwichsList(this.sm.findAll()))
-                .build();
-        return Response.ok(json).build();*/
-
+    public Response getSandwichs(
+            @DefaultValue("1") @QueryParam("page") int page,
+            @DefaultValue("10") @QueryParam("size") int nbPerPage,
+            @DefaultValue("all") @QueryParam("t") String ptype,
+            @DefaultValue("0") @QueryParam("img") int img
+    ) {
         JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
                 .add("meta", this.sm.getMetaPerPage(-1, page, nbPerPage))
-                .add("sandwichs", this.getSandwichsList(this.sm.findAllPerPage(page, nbPerPage)))
+                .add("sandwichs", this.getSandwichsList(this.sm.findWithParam(ptype, img, page, nbPerPage)))
                 .build();
         return Response.ok(json).build();
     }
 
-    // J'ai mis en commentaires car les méthodes ont le même nom et donc ça ne marche pas
-    // Et avec un nom différent les méthodes ci-dessous ne sont pas appelées
     /*@GET
     @Produces("application/json")
-    public Response getSandwichs(@QueryParam("pain") String ptype) {
+    public Response getSandwichs(@QueryParam("t") String ptype) {
         List<Sandwich> sandwichs = this.sm.findByTypePain(ptype);
         JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
                 .add("meta", this.sm.getMeta(sandwichs.size()))
                 .add("sandwichs", this.getSandwichsList(sandwichs))
-                .build();
-        return Response.ok(json).build();
-    }
-
-    @GET
-    @Produces("application/json")
-    public Response getSandwichs(@QueryParam("page") int page, @DefaultValue("10") @QueryParam("size") int size) {
-        JsonObject json = Json.createObjectBuilder()
-                .add("type", "collection")
-                .add("meta", this.sm.getMeta(-1))
-                .add("sandwichs", this.getSandwichsList(this.sm.findAllPerPage(page, size)))
                 .build();
         return Response.ok(json).build();
     }*/

@@ -5,8 +5,13 @@ import org.lpro.entity.Sandwich;
 import javax.ejb.Stateless;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.persistence.CacheStoreMode;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.*;
 import java.util.List;
+import java.util.StringJoiner;
 
 @Stateless
 public class SandwichManager {
@@ -24,14 +29,20 @@ public class SandwichManager {
         return this.em.find(Sandwich.class, id);
     }
 
-    public List<Sandwich> findByTypePain(String pain) {
-        Query query = this.em.createQuery("SELECT s FROM Sandwich s WHERE s.pain = :pain");
-        query.setParameter("pain", pain);
-        return query.getResultList();
-    }
+    public List<Sandwich> findWithParam(String ptype, int img, int page, int nbPerPage) {
+        String sql = "SELECT s FROM Sandwich s";
 
-    public List<Sandwich> findAllPerPage(int page, int nbPerPage) {
-        Query query = this.em.createNamedQuery("Sandwich.findAll", Sandwich.class);
+        if (ptype.compareTo("all") != 0) {
+            if (img == 1) {
+                sql += " WHERE s.pain = '" + ptype + "' AND s.img != ''";
+            } else {
+                sql += " WHERE s.pain = '" + ptype + "'";
+            }
+        } else {
+            if (img == 1) {
+                sql += " WHERE s.img != ''";
+            }
+        }
 
         double nbSandwichs = this.findAll().size();
 
@@ -42,6 +53,7 @@ public class SandwichManager {
             page = (int) Math.ceil(nbSandwichs / (double) nbPerPage);
         }
 
+        Query query = this.em.createQuery(sql);
         query.setFirstResult((page-1) * nbPerPage);
         query.setMaxResults(nbPerPage);
         return query.getResultList();
