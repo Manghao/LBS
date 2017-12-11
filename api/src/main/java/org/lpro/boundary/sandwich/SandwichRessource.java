@@ -36,7 +36,7 @@ public class SandwichRessource {
 
     @GET
     @Produces("application/json")
-    public Response getSandwichs(@QueryParam("pain") String ptype) {
+    public Response getSandwichs(@QueryParam("t") String ptype) {
         List<Sandwich> sandwichs = this.sm.findByTypePain(ptype);
         JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
