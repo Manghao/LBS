@@ -29,7 +29,7 @@ public class SandwichManager {
         return this.em.find(Sandwich.class, id);
     }
 
-    public List<Sandwich> findWithParam(String ptype, int img, int page, int nbPerPage) {
+    public Query createQuery(String ptype, int img) {
         String sql = "SELECT s FROM Sandwich s";
 
         if (ptype.compareTo("all") != 0) {
@@ -44,7 +44,11 @@ public class SandwichManager {
             }
         }
 
-        double nbSandwichs = this.findAll().size();
+        return this.em.createQuery(sql);
+    }
+
+    public List<Sandwich> findWithParam(Query query, int page, int nbPerPage) {
+        double nbSandwichs = query.getResultList().size();
 
         if (page <= 0) {
             page = 1;
@@ -53,7 +57,6 @@ public class SandwichManager {
             page = (int) Math.ceil(nbSandwichs / (double) nbPerPage);
         }
 
-        Query query = this.em.createQuery(sql);
         query.setFirstResult((page-1) * nbPerPage);
         query.setMaxResults(nbPerPage);
         return query.getResultList();
@@ -78,10 +81,10 @@ public class SandwichManager {
                 .build();
     }
 
-    public JsonObject getMetaPerPage(long size, int page, int nbPerPage) {
+    public JsonObject getMetaPerPage(long size, String ptype, int img, int page, int nbPerPage) {
         return Json.createObjectBuilder()
-                .add("count", ((size == -1) ? this.findAll().size() : size))
-                .add("size", this.findAllPerPage(page, nbPerPage).size())
+                .add("count", ((size == -1) ? this.createQuery(ptype, img).getResultList().size() : size))
+                .add("size", this.findWithParam(this.createQuery(ptype, img), page, nbPerPage).size())
                 .build();
     }
 }
