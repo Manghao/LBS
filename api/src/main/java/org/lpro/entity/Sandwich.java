@@ -54,11 +54,11 @@ public class Sandwich implements Serializable {
         this.nom = nom;
     }
 
-    public String getPain() {
+    public String getTypePain() {
         return type_pain;
     }
 
-    public void setPain(String pain) {
+    public void setTypePain(String pain) {
         this.type_pain = pain;
     }
 
