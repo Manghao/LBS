@@ -34,9 +34,9 @@ public class SandwichManager {
 
         if (ptype != null) {
             if (img == 1) {
-                sql += " WHERE s.pain = '" + ptype + "' AND s.img != ''";
+                sql += " WHERE s.type_pain = '" + ptype + "' AND s.img != ''";
             } else {
-                sql += " WHERE s.pain = '" + ptype + "'";
+                sql += " WHERE s.type_pain = '" + ptype + "'";
             }
         } else {
             if (img == 1) {

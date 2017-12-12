@@ -96,7 +96,7 @@ public class SandwichRessource {
                 .add("id", s.getId())
                 .add("nom", s.getNom())
                 .add("description", s.getDescription())
-                .add("pain", s.getPain())
+                .add("type_pain", s.getPain())
                 .build();
 
         JsonObject href = Json.createObjectBuilder()
@@ -120,7 +120,7 @@ public class SandwichRessource {
                         .add("id", s.getId())
                         .add("nom", s.getNom())
                         .add("description", s.getDescription())
-                        .add("pain", s.getPain())
+                        .add("type_pain", s.getPain())
                         .build())
                 .add("links", Json.createObjectBuilder()
                         .add("self", Json.createObjectBuilder()
