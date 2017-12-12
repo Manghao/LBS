@@ -32,7 +32,7 @@ public class SandwichManager {
     public Query createQuery(String ptype, int img) {
         String sql = "SELECT s FROM Sandwich s";
 
-        if (ptype.compareTo("all") != 0) {
+        if (ptype != null) {
             if (img == 1) {
                 sql += " WHERE s.pain = '" + ptype + "' AND s.img != ''";
             } else {

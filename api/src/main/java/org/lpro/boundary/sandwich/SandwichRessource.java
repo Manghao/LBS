@@ -31,7 +31,7 @@ public class SandwichRessource {
     public Response getSandwichs(
             @DefaultValue("1") @QueryParam("page") int page,
             @DefaultValue("10") @QueryParam("size") int nbPerPage,
-            @DefaultValue("all") @QueryParam("t") String ptype,
+            @QueryParam("t") String ptype,
             @DefaultValue("0") @QueryParam("img") int img
     ) {
         JsonObject json = Json.createObjectBuilder()
