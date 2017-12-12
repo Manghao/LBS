@@ -31,13 +31,13 @@ public class SandwichRessource {
     public Response getSandwichs(
             @DefaultValue("1") @QueryParam("page") int page,
             @DefaultValue("10") @QueryParam("size") int nbPerPage,
-            @DefaultValue("all") @QueryParam("t") String ptype,
+            @QueryParam("t") String ptype,
             @DefaultValue("0") @QueryParam("img") int img
     ) {
         JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
-                .add("meta", this.sm.getMetaPerPage(-1, page, nbPerPage))
-                .add("sandwichs", this.getSandwichsList(this.sm.findWithParam(ptype, img, page, nbPerPage)))
+                .add("meta", this.sm.getMetaPerPage(-1, ptype, img, page, nbPerPage))
+                .add("sandwichs", this.getSandwichsList(this.sm.findWithParam(this.sm.createQuery(ptype, img), page, nbPerPage)))
                 .build();
         return Response.ok(json).build();
     }
@@ -96,7 +96,7 @@ public class SandwichRessource {
                 .add("id", s.getId())
                 .add("nom", s.getNom())
                 .add("description", s.getDescription())
-                .add("pain", s.getPain())
+                .add("type_pain", s.getPain())
                 .build();
 
         JsonObject href = Json.createObjectBuilder()
@@ -120,7 +120,7 @@ public class SandwichRessource {
                         .add("id", s.getId())
                         .add("nom", s.getNom())
                         .add("description", s.getDescription())
-                        .add("pain", s.getPain())
+                        .add("type_pain", s.getPain())
                         .build())
                 .add("links", Json.createObjectBuilder()
                         .add("self", Json.createObjectBuilder()
