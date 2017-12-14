@@ -1,9 +1,11 @@
 package org.lpro.boundary.categorie;
 
 import org.lpro.entity.Categorie;
+import org.lpro.entity.Sandwich;
 
 import javax.ejb.Stateless;
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +27,7 @@ public class CategorieManager {
 
     public Categorie save(Categorie c) {
         c.setId(UUID.randomUUID().toString());
+        c.setSandwich(new HashSet<Sandwich>());
         return this.em.merge(c);
     }
 

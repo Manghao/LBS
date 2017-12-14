@@ -44,6 +44,13 @@ public class Sandwich implements Serializable {
         this.img = img;
     }
 
+    public Sandwich(Sandwich s) {
+        this.id = s.getId();
+        this.type_pain = s.getTypePain();
+        this.description = s.getDescription();
+        this.img = s.getImg();
+    }
+
     public String getId() {
         return id;
     }
