@@ -1,5 +1,6 @@
 package org.lpro.boundary.sandwich;
 
+import org.lpro.entity.Categorie;
 import org.lpro.entity.Sandwich;
 
 import javax.ejb.Stateless;
@@ -60,6 +61,23 @@ public class SandwichManager {
         query.setFirstResult((page-1) * nbPerPage);
         query.setMaxResults(nbPerPage);
         return query.getResultList();
+    }
+
+    public Sandwich addSandwich(String catId, Sandwich sand) {
+        Sandwich s;
+        TypedQuery<Sandwich> query = em.createQuery("SELECT s FROM Sandwich s WHERE s.nom = :n", Sandwich.class);
+        query.setParameter("n", sand.getNom());
+        try {
+            s = query.getSingleResult();
+        } catch (NoResultException e) {
+            s = new Sandwich(sand);
+            s.setId(UUID.randomUUID().toString());
+            this.em.persist(s);
+        }
+        Categorie cat = this.em.find(Categorie.class, catId);
+        cat.getSandwich().add(s);
+        this.em.persist(cat);
+        return s;
     }
   
     public Sandwich save(Sandwich s) {
