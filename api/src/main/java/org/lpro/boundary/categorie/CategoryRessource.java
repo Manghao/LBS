@@ -31,6 +31,9 @@ public class CategoryRessource {
     @Inject
     SandwichManager sm;
 
+    @Context
+    UriInfo uriInfo;
+
     @GET
     public Response getCategories() {
         JsonObject json = Json.createObjectBuilder()
@@ -65,6 +68,17 @@ public class CategoryRessource {
                 .build();
 
         return Response.ok(json).build();
+    }
+
+    @POST
+    @Path("{id}/sandwichs")
+    public Response addSandwichToCategorie(@PathParam("id") String catId, Sandwich sand) {
+        Sandwich s = this.sm.addSandwich(catId, sand);
+        URI uri = uriInfo.getAbsolutePathBuilder()
+                .path("/")
+                .path(s.getId())
+                .build();
+        return Response.created(uri).entity(buildJsonForSandwich(s)).build();
     }
 
     @POST
