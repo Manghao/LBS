@@ -1,6 +1,7 @@
 package org.lpro.boundary.categorie;
 
 import org.lpro.boundary.categorie.exception.CategorieNotFound;
+import org.lpro.boundary.sandwich.SandwichManager;
 import org.lpro.entity.Categorie;
 
 import javax.ejb.Stateless;
@@ -23,6 +24,9 @@ public class CategoryRessource {
 
     @Inject
     CategorieManager cm;
+
+    @Inject
+    SandwichManager sm;
 
     @GET
     public Response getCategories() {
