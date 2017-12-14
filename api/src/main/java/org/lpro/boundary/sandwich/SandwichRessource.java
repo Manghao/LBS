@@ -1,5 +1,6 @@
 package org.lpro.boundary.sandwich;
 
+import org.lpro.boundary.categorie.CategorieManager;
 import org.lpro.boundary.sandwich.exception.SandwichNotFound;
 import org.lpro.entity.Sandwich;
 
@@ -26,6 +27,9 @@ public class SandwichRessource {
 
     @Inject
     SandwichManager sm;
+
+    @Inject
+    CategorieManager cm;
 
     @GET
     public Response getSandwichs(

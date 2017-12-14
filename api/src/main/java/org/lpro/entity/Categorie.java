@@ -7,6 +7,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @XmlRootElement
@@ -22,6 +24,9 @@ public class Categorie implements Serializable {
 
     @NotNull
     private String description;
+
+    @ManyToMany
+    private Set<Sandwich> sandwich = new HashSet<Sandwich>();
 
     public Categorie() {
     }

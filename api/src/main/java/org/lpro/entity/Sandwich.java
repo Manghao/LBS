@@ -9,6 +9,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @XmlRootElement
@@ -29,6 +31,9 @@ public class Sandwich implements Serializable {
     private String description;
 
     private String img;
+
+    @ManyToMany(mappedBy = "sandwich")
+    private Set<Categorie> categorie = new HashSet<Categorie>();
 
     public Sandwich() { }
 
