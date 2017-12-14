@@ -42,6 +42,7 @@ public class SandwichRessource {
         return Response.ok(json).build();
     }
 
+    @GET
     @Path("{id}")
     public Response getOneSandwich(@PathParam("id") String id, @Context UriInfo uriInfo) {
         return Optional.ofNullable(sm.findById(id))
