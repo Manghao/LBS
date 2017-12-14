@@ -2,7 +2,9 @@ package org.lpro.boundary.categorie;
 
 import org.lpro.boundary.categorie.exception.CategorieNotFound;
 import org.lpro.boundary.sandwich.SandwichManager;
+import org.lpro.boundary.sandwich.SandwichRessource;
 import org.lpro.entity.Categorie;
+import org.lpro.entity.Sandwich;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -15,6 +17,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.Optional;
+import java.util.Set;
 
 @Stateless
 @Path("categories")
@@ -40,9 +43,28 @@ public class CategoryRessource {
     @GET
     @Path("{id}")
     public Response getOneCategorie(@PathParam("id") String id, @Context UriInfo uriInfo) {
-        return Optional.ofNullable(cm.findById(id))
+        return Optional.ofNullable(this.cm.findById(id))
                 .map(c -> Response.ok(categorie2Json(c)).build())
                 .orElseThrow(() -> new CategorieNotFound("Ressource non disponible" + uriInfo.getPath()));
+    }
+
+    @GET
+    @Path("{id}/sandwichs")
+    public Response getCategorieSandwichs(@PathParam("id") String id, @Context UriInfo uriInfo) {
+        Categorie c = this.cm.findById(id);
+        Set<Sandwich> sandwichs = c.getSandwich();
+
+        JsonArrayBuilder jab = Json.createArrayBuilder();
+        sandwichs.forEach((s) -> {
+            jab.add(SandwichRessource.buildJson(s));
+        });
+
+        JsonObject json = Json.createObjectBuilder()
+                .add("type", "collection")
+                .add("sandwichs", jab.build())
+                .build();
+
+        return Response.ok(json).build();
     }
 
     @POST

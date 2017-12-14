@@ -61,4 +61,11 @@ public class Categorie implements Serializable {
         this.description = description;
     }
 
+    public Set<Sandwich> getSandwich() {
+        return sandwich;
+    }
+
+    public void setSandwich(Set<Sandwich> sandwich) {
+        this.sandwich = sandwich;
+    }
 }

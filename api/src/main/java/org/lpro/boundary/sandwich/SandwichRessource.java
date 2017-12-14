@@ -84,7 +84,7 @@ public class SandwichRessource {
         return jab.build();
     }
 
-    private JsonObject buildJson(Sandwich s) {
+    public static JsonObject buildJson(Sandwich s) {
         JsonObject details = Json.createObjectBuilder()
                 .add("id", s.getId())
                 .add("nom", s.getNom())

@@ -83,4 +83,12 @@ public class Sandwich implements Serializable {
     public void setImg(String img) {
         this.img = img;
     }
+
+    public Set<Categorie> getCategorie() {
+        return categorie;
+    }
+
+    public void setCategorie(Set<Categorie> categorie) {
+        this.categorie = categorie;
+    }
 }
