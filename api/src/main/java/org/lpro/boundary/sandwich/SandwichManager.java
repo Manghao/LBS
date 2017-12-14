@@ -11,7 +11,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.*;
 import java.util.List;
-import java.util.StringJoiner;
+import java.util.UUID;
 
 @Stateless
 public class SandwichManager {
@@ -25,7 +25,7 @@ public class SandwichManager {
         return q.getResultList();
     }
 
-    public Sandwich findById(long id) {
+    public Sandwich findById(String id) {
         return this.em.find(Sandwich.class, id);
     }
 
@@ -63,11 +63,11 @@ public class SandwichManager {
     }
   
     public Sandwich save(Sandwich s) {
-        s.setId(this.findAll().get(this.findAll().size() - 1).getId() + 1);
+        s.setId(UUID.randomUUID().toString());
         return this.em.merge(s);
     }
 
-    public void delete(long id) {
+    public void delete(String id) {
         try {
             Sandwich ref = this.em.getReference(Sandwich.class, id);
             this.em.remove(ref);

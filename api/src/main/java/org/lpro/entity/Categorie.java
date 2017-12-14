@@ -15,8 +15,7 @@ import java.io.Serializable;
 public class Categorie implements Serializable {
 
     @Id
-    @GeneratedValue
-    private long id;
+    private String id;
 
     @NotNull
     private String nom;
@@ -27,17 +26,17 @@ public class Categorie implements Serializable {
     public Categorie() {
     }
 
-    public Categorie(long id, String nom, String description) {
+    public Categorie(String id, String nom, String description) {
         this.id = id;
         this.nom = nom;
         this.description = description;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

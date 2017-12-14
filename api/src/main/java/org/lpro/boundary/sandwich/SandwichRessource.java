@@ -42,20 +42,8 @@ public class SandwichRessource {
         return Response.ok(json).build();
     }
 
-    /*@GET
-    @Produces("application/json")
-    public Response getSandwichs(@QueryParam("t") String ptype) {
-        List<Sandwich> sandwichs = this.sm.findByTypePain(ptype);
-        JsonObject json = Json.createObjectBuilder()
-                .add("type", "collection")
-                .add("meta", this.sm.getMeta(sandwichs.size()))
-                .add("sandwichs", this.getSandwichsList(sandwichs))
-                .build();
-        return Response.ok(json).build();
-    }*/
-
     @Path("{id}")
-    public Response getOneSandwich(@PathParam("id") long id, @Context UriInfo uriInfo) {
+    public Response getOneSandwich(@PathParam("id") String id, @Context UriInfo uriInfo) {
         return Optional.ofNullable(sm.findById(id))
                 .map(s -> Response.ok(sandwich2Json(s)).build())
                 .orElseThrow(() -> new SandwichNotFound("Ressource non disponible" + uriInfo.getPath()));
@@ -64,21 +52,21 @@ public class SandwichRessource {
     @POST
     public Response newSandwich(@Valid Sandwich s, @Context UriInfo uriInfo) {
         Sandwich sand = this.sm.save(s);
-        long id = sand.getId();
+        String id = sand.getId();
         URI uri = uriInfo.getAbsolutePathBuilder().path("/" + id).build();
         return Response.created(uri).build();
     }
 
     @DELETE
     @Path("{id}")
-    public Response removeSandwich(@PathParam("id") long id) {
+    public Response removeSandwich(@PathParam("id") String id) {
         this.sm.delete(id);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     @PUT
     @Path("{id}")
-    public Sandwich update(@PathParam("id") long id, Sandwich s) {
+    public Sandwich update(@PathParam("id") String id, Sandwich s) {
         s.setId(id);
         return this.sm.save(s);
     }
