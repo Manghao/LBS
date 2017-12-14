@@ -35,7 +35,7 @@ public class CategoryRessource {
 
     @GET
     @Path("{id}")
-    public Response getOneCategorie(@PathParam("id") long id, @Context UriInfo uriInfo) {
+    public Response getOneCategorie(@PathParam("id") String id, @Context UriInfo uriInfo) {
         return Optional.ofNullable(cm.findById(id))
                 .map(c -> Response.ok(categorie2Json(c)).build())
                 .orElseThrow(() -> new CategorieNotFound("Ressource non disponible" + uriInfo.getPath()));
@@ -44,21 +44,21 @@ public class CategoryRessource {
     @POST
     public Response newCategorie(@Valid Categorie c, @Context UriInfo uriInfo) {
         Categorie cat = this.cm.save(c);
-        long id = cat.getId();
+        String id = cat.getId();
         URI uri = uriInfo.getAbsolutePathBuilder().path("/" + id).build();
         return Response.created(uri).build();
     }
 
     @DELETE
     @Path("{id}")
-    public Response removeCategorie(@PathParam("id") long id) {
+    public Response removeCategorie(@PathParam("id") String id) {
         this.cm.delete(id);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     @PUT
     @Path("{id}")
-    public Categorie update(@PathParam("id") long id, Categorie c) {
+    public Categorie update(@PathParam("id") String id, Categorie c) {
         c.setId(id);
         return this.cm.save(c);
     }

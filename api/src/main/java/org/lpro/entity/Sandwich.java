@@ -2,6 +2,7 @@ package org.lpro.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.NamedQuery;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,7 +17,7 @@ import java.io.Serializable;
 public class Sandwich implements Serializable {
 
     @Id
-    private long id;
+    private String id;
 
     @NotNull
     private String nom;
@@ -31,18 +32,18 @@ public class Sandwich implements Serializable {
 
     public Sandwich() { }
 
-    public Sandwich(long id, String nom, String pain, String description, String img) {
+    public Sandwich(String id, String nom, String pain, String description, String img) {
         this.id = id;
         this.pain = pain;
         this.description = description;
         this.img = img;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

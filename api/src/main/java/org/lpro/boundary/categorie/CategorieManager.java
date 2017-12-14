@@ -5,6 +5,7 @@ import org.lpro.entity.Categorie;
 import javax.ejb.Stateless;
 import javax.persistence.*;
 import java.util.List;
+import java.util.UUID;
 
 @Stateless
 public class CategorieManager {
@@ -12,7 +13,7 @@ public class CategorieManager {
     @PersistenceContext
     EntityManager em;
 
-    public Categorie findById(long id) {
+    public Categorie findById(String id) {
         return this.em.find(Categorie.class, id);
     }
 
@@ -23,10 +24,11 @@ public class CategorieManager {
     }
 
     public Categorie save(Categorie c) {
+        c.setId(UUID.randomUUID().toString());
         return this.em.merge(c);
     }
 
-    public void delete(long id) {
+    public void delete(String id) {
         try {
             Categorie ref = this.em.getReference(Categorie.class, id);
             this.em.remove(ref);
