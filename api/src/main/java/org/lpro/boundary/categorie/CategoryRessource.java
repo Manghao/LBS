@@ -79,7 +79,7 @@ public class CategoryRessource {
                 .path("/")
                 .path(s.getId())
                 .build();
-        return Response.created(uri).entity(buildJsonForSandwich(s)).build();
+        return Response.created(uri).entity(SandwichRessource.buildJson(s)).build();
     }
 
     @POST
@@ -87,7 +87,7 @@ public class CategoryRessource {
         Categorie cat = this.cm.save(c);
         String id = cat.getId();
         URI uri = uriInfo.getAbsolutePathBuilder().path("/" + id).build();
-        return Response.created(uri).build();
+        return Response.created(uri).entity(this.buildJson(cat)).build();
     }
 
     @DELETE

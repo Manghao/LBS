@@ -53,7 +53,7 @@ public class SandwichRessource {
     @GET
     @Path("{id}")
     public Response getOneSandwich(@PathParam("id") String id, @Context UriInfo uriInfo) {
-        return Optional.ofNullable(sm.findById(id))
+        return Optional.ofNullable(this.sm.findById(id))
                 .map(s -> Response.ok(sandwich2Json(s)).build())
                 .orElseThrow(() -> new SandwichNotFound("Ressource non disponible" + uriInfo.getPath()));
     }
@@ -63,7 +63,7 @@ public class SandwichRessource {
         Sandwich sand = this.sm.save(s);
         String id = sand.getId();
         URI uri = uriInfo.getAbsolutePathBuilder().path("/" + id).build();
-        return Response.created(uri).build();
+        return Response.created(uri).entity(buildJson(sand)).build();
     }
 
     @DELETE
