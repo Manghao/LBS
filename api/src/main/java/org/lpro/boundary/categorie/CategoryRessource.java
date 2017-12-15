@@ -64,6 +64,7 @@ public class CategoryRessource {
 
         JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
+                .add("meta", Json.createObjectBuilder().add("count", sandwichs.size()).build())
                 .add("sandwichs", jab.build())
                 .build();
 

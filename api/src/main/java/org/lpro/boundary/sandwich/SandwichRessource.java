@@ -1,5 +1,6 @@
 package org.lpro.boundary.sandwich;
 
+import com.sun.jndi.toolkit.url.Uri;
 import org.lpro.boundary.categorie.CategorieManager;
 import org.lpro.boundary.sandwich.exception.SandwichNotFound;
 import org.lpro.entity.Sandwich;
@@ -30,6 +31,9 @@ public class SandwichRessource {
 
     @Inject
     CategorieManager cm;
+
+    @Context
+    static UriInfo uriInfo;
 
     @GET
     public Response getSandwichs(
@@ -90,36 +94,38 @@ public class SandwichRessource {
                 .add("nom", s.getNom())
                 .add("description", s.getDescription())
                 .add("type_pain", s.getTypePain())
+                .add("img", ((s.getImg() == null) ? "" : s.getImg()))
                 .build();
 
         JsonObject href = Json.createObjectBuilder()
-                .add("href", ((s.getImg() == null) ? "" : s.getImg()))
+                .add("href", "/sandwichs/" + s.getId())
+                .add("rel", "self")
                 .build();
 
-        JsonObject self = Json.createObjectBuilder()
-                .add("self", href)
+        JsonArrayBuilder categories = Json.createArrayBuilder();
+        s.getCategorie().forEach((c) -> {
+            JsonObject json = Json.createObjectBuilder()
+                    .add("href", "/categories/" + c.getId())
+                    .add("rel", c.getNom())
+                    .build();
+            categories.add(json);
+        });
+
+        JsonArray links = Json.createArrayBuilder()
+                .add(href)
+                .add(Json.createObjectBuilder().add("categories", categories).build())
                 .build();
 
         return Json.createObjectBuilder()
                 .add("sandwich", details)
-                .add("links", self)
+                .add("links", links)
                 .build();
     }
 
     private JsonObject sandwich2Json(Sandwich s) {
         return Json.createObjectBuilder()
                 .add("type", "resource")
-                .add("sandwich", Json.createObjectBuilder()
-                        .add("id", s.getId())
-                        .add("nom", s.getNom())
-                        .add("description", s.getDescription())
-                        .add("type_pain", s.getTypePain())
-                        .build())
-                .add("links", Json.createObjectBuilder()
-                        .add("self", Json.createObjectBuilder()
-                                .add("href", ((s.getImg() == null) ? "" : s.getImg()))
-                                .build())
-                        .build())
+                .add("sandwich", buildJson(s))
                 .build();
     }
 }
