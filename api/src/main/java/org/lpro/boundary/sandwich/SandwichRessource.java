@@ -1,5 +1,6 @@
 package org.lpro.boundary.sandwich;
 
+import com.sun.jndi.toolkit.url.Uri;
 import org.lpro.boundary.categorie.CategorieManager;
 import org.lpro.boundary.sandwich.exception.SandwichNotFound;
 import org.lpro.entity.Sandwich;
@@ -30,6 +31,9 @@ public class SandwichRessource {
 
     @Inject
     CategorieManager cm;
+
+    @Context
+    static UriInfo uriInfo;
 
     @GET
     public Response getSandwichs(
