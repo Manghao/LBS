@@ -4,7 +4,7 @@
 /home/geoffrey/wildfly-dev/LBS/api/src/main/java/org/lpro/boundary/mapper/ValidationMapper.java
 /home/geoffrey/wildfly-dev/LBS/api/src/main/java/org/lpro/entity/Sandwich.java
 /home/geoffrey/wildfly-dev/LBS/api/src/main/java/org/lpro/boundary/categorie/mapper/CategorieNotFoundMapper.java
-/home/geoffrey/wildfly-dev/LBS/api/src/main/java/org/lpro/boundary/categorie/CategoryRessource.java
+/home/geoffrey/wildfly-dev/LBS/api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java
 /home/geoffrey/wildfly-dev/LBS/api/src/main/java/org/lpro/boundary/sandwich/SandwichRessource.java
 /home/geoffrey/wildfly-dev/LBS/api/src/main/java/org/lpro/boundary/sandwich/mapper/SandwichNotFoundMapper.java
 /home/geoffrey/wildfly-dev/LBS/api/src/main/java/org/lpro/boundary/categorie/exception/CategorieNotFound.java

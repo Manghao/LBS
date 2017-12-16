@@ -1,6 +1,6 @@
 org/lpro/entity/Sandwich.class
 org/lpro/boundary/sandwich/SandwichManager.class
-org/lpro/boundary/categorie/CategoryRessource.class
+org/lpro/boundary/categorie/CategorieRessource.class
 org/lpro/entity/Categorie.class
 com/airhacks/JAXRSConfiguration.class
 org/lpro/boundary/sandwich/exception/SandwichNotFound.class

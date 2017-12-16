@@ -23,7 +23,7 @@ import java.util.Set;
 @Path("categories")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class CategoryRessource {
+public class CategorieRessource {
 
     @Inject
     CategorieManager cm;
@@ -73,7 +73,7 @@ public class CategoryRessource {
 
     @POST
     @Path("{id}/sandwichs")
-    public Response addSandwichToCategorie(@PathParam("id") String catId, Sandwich sand) {
+    public Response addSandwichToCategorie(@PathParam("id") String catId, @Context UriInfo uriInfo, Sandwich sand) {
         Sandwich s = this.sm.addSandwich(catId, sand);
         URI uri = uriInfo.getAbsolutePathBuilder()
                 .path("/")
@@ -112,11 +112,43 @@ public class CategoryRessource {
         return jab.build();
     }
 
-    private JsonObject buildJson(Categorie c) {
-        return Json.createObjectBuilder()
+    public static JsonObject buildJson(Categorie c) {
+        JsonObject href = Json.createObjectBuilder()
+                .add("href", "/categories/" + c.getId())
+                .add("rel", "self")
+                .build();
+
+        JsonArrayBuilder sandwichsLinks = Json.createArrayBuilder();
+        JsonArrayBuilder sandwichs = Json.createArrayBuilder();
+        c.getSandwich().forEach((s) -> {
+            JsonObject json = Json.createObjectBuilder()
+                    .add("href", "/sandwichs/" + s.getId())
+                    .add("rel", s.getNom())
+                    .build();
+            sandwichsLinks.add(json);
+
+            JsonObject json2 = Json.createObjectBuilder()
+                    .add("id", s.getId())
+                    .add("nom", s.getNom())
+                    .build();
+            sandwichs.add(json2);
+        });
+
+        JsonArray links = Json.createArrayBuilder()
+                .add(href)
+                .add(Json.createObjectBuilder().add("sandwichs", sandwichsLinks).build())
+                .build();
+
+        JsonObject details = Json.createObjectBuilder()
                 .add("id", c.getId())
                 .add("nom", c.getNom())
                 .add("description", c.getDescription())
+                .add("sandwichs", sandwichs)
+                .build();
+
+        return Json.createObjectBuilder()
+                .add("categorie", details)
+                .add("links", links)
                 .build();
     }
 
