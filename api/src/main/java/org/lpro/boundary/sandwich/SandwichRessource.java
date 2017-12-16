@@ -1,8 +1,9 @@
 package org.lpro.boundary.sandwich;
 
-import com.sun.jndi.toolkit.url.Uri;
 import org.lpro.boundary.categorie.CategorieManager;
+import org.lpro.boundary.categorie.CategorieRessource;
 import org.lpro.boundary.sandwich.exception.SandwichNotFound;
+import org.lpro.entity.Categorie;
 import org.lpro.entity.Sandwich;
 
 import javax.ejb.Stateless;
@@ -33,7 +34,7 @@ public class SandwichRessource {
     CategorieManager cm;
 
     @Context
-    static UriInfo uriInfo;
+    UriInfo uriInfo;
 
     @GET
     public Response getSandwichs(
@@ -53,9 +54,29 @@ public class SandwichRessource {
     @GET
     @Path("{id}")
     public Response getOneSandwich(@PathParam("id") String id, @Context UriInfo uriInfo) {
-        return Optional.ofNullable(sm.findById(id))
+        return Optional.ofNullable(this.sm.findById(id))
                 .map(s -> Response.ok(sandwich2Json(s)).build())
                 .orElseThrow(() -> new SandwichNotFound("Ressource non disponible" + uriInfo.getPath()));
+    }
+
+    @GET
+    @Path("{id}/categories")
+    public Response getSandwichCategories(@PathParam("id") String id, @Context UriInfo uriInfo) {
+        Sandwich s = this.sm.findById(id);
+        Set<Categorie> categories = s.getCategorie();
+
+        JsonArrayBuilder jab = Json.createArrayBuilder();
+        categories.forEach((c) -> {
+            jab.add(CategorieRessource.buildJson(c));
+        });
+
+        JsonObject json = Json.createObjectBuilder()
+                .add("type", "collection")
+                .add("meta", Json.createObjectBuilder().add("count", categories.size()).build())
+                .add("categories", jab.build())
+                .build();
+
+        return Response.ok(json).build();
     }
 
     @POST
@@ -63,7 +84,7 @@ public class SandwichRessource {
         Sandwich sand = this.sm.save(s);
         String id = sand.getId();
         URI uri = uriInfo.getAbsolutePathBuilder().path("/" + id).build();
-        return Response.created(uri).build();
+        return Response.created(uri).entity(buildJson(sand)).build();
     }
 
     @DELETE
@@ -89,31 +110,39 @@ public class SandwichRessource {
     }
 
     public static JsonObject buildJson(Sandwich s) {
-        JsonObject details = Json.createObjectBuilder()
-                .add("id", s.getId())
-                .add("nom", s.getNom())
-                .add("description", s.getDescription())
-                .add("type_pain", s.getTypePain())
-                .add("img", ((s.getImg() == null) ? "" : s.getImg()))
-                .build();
-
         JsonObject href = Json.createObjectBuilder()
                 .add("href", "/sandwichs/" + s.getId())
                 .add("rel", "self")
                 .build();
 
+        JsonArrayBuilder categoriesLinks = Json.createArrayBuilder();
         JsonArrayBuilder categories = Json.createArrayBuilder();
         s.getCategorie().forEach((c) -> {
             JsonObject json = Json.createObjectBuilder()
                     .add("href", "/categories/" + c.getId())
                     .add("rel", c.getNom())
                     .build();
-            categories.add(json);
+            categoriesLinks.add(json);
+
+            JsonObject json2 = Json.createObjectBuilder()
+                    .add("id", c.getId())
+                    .add("nom", c.getNom())
+                    .build();
+            categories.add(json2);
         });
 
         JsonArray links = Json.createArrayBuilder()
                 .add(href)
-                .add(Json.createObjectBuilder().add("categories", categories).build())
+                .add(Json.createObjectBuilder().add("categories", categoriesLinks).build())
+                .build();
+
+        JsonObject details = Json.createObjectBuilder()
+                .add("id", s.getId())
+                .add("nom", s.getNom())
+                .add("description", s.getDescription())
+                .add("type_pain", s.getTypePain())
+                .add("img", ((s.getImg() == null) ? "" : s.getImg()))
+                .add("categories", categories)
                 .build();
 
         return Json.createObjectBuilder()
