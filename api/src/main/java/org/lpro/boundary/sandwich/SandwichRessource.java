@@ -110,9 +110,12 @@ public class SandwichRessource {
     }
 
     public static JsonObject buildJson(Sandwich s) {
-        JsonObject href = Json.createObjectBuilder()
+        JsonObject self = Json.createObjectBuilder()
                 .add("href", "/sandwichs/" + s.getId())
-                .add("rel", "self")
+                .build();
+
+        JsonObject linksTailles = Json.createObjectBuilder()
+                .add("href", "/sandwichs/" + s.getId() + "/tailles")
                 .build();
 
         JsonArrayBuilder categoriesLinks = Json.createArrayBuilder();
@@ -131,9 +134,20 @@ public class SandwichRessource {
             categories.add(json2);
         });
 
-        JsonArray links = Json.createArrayBuilder()
-                .add(href)
-                .add(Json.createObjectBuilder().add("categories", categoriesLinks).build())
+        JsonArrayBuilder tailles = Json.createArrayBuilder();
+        s.getTaille().forEach((t) -> {
+            JsonObject taille = Json.createObjectBuilder()
+                    .add("id", t.getId())
+                    .add("nom", t.getNom())
+                    .add("prix", t.getPrix())
+                    .build();
+            tailles.add(taille);
+        });
+
+        JsonObject links = Json.createObjectBuilder()
+                .add("self", self)
+                .add("categories", "sandwichs/" + s.getId() + "/categories")
+                .add("tailles", linksTailles)
                 .build();
 
         JsonObject details = Json.createObjectBuilder()
@@ -143,6 +157,7 @@ public class SandwichRessource {
                 .add("type_pain", s.getTypePain())
                 .add("img", ((s.getImg() == null) ? "" : s.getImg()))
                 .add("categories", categories)
+                .add("tailles", tailles)
                 .build();
 
         return Json.createObjectBuilder()
