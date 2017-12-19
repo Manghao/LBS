@@ -1,8 +1,9 @@
 package org.lpro.entity;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -13,8 +14,8 @@ import java.util.Set;
 @Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@NamedQuery(name="Categorie.findAll",query="SELECT c FROM Categorie c")
-public class Categorie implements Serializable {
+public class Taille implements Serializable
+{
 
     @Id
     private String id;
@@ -23,17 +24,17 @@ public class Categorie implements Serializable {
     private String nom;
 
     @NotNull
-    private String description;
+    private float prix;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "taille")
     private Set<Sandwich> sandwich = new HashSet<Sandwich>();
 
-    public Categorie() { }
+    public Taille() { }
 
-    public Categorie(String id, String nom, String description) {
+    public Taille(String id, String nom, float prix) {
         this.id = id;
         this.nom = nom;
-        this.description = description;
+        this.prix = prix;
     }
 
     public String getId() {
@@ -52,12 +53,12 @@ public class Categorie implements Serializable {
         this.nom = nom;
     }
 
-    public String getDescription() {
-        return description;
+    public float getPrix() {
+        return prix;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setPrix(float prix) {
+        this.prix = prix;
     }
 
     public Set<Sandwich> getSandwich() {

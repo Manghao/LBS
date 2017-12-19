@@ -113,9 +113,12 @@ public class CategorieRessource {
     }
 
     public static JsonObject buildJson(Categorie c) {
-        JsonObject href = Json.createObjectBuilder()
+        JsonObject self = Json.createObjectBuilder()
                 .add("href", "/categories/" + c.getId())
-                .add("rel", "self")
+                .build();
+
+        JsonObject linksSandwichs = Json.createObjectBuilder()
+                .add("href", "/categories/" + c.getId() + "/sandwichs")
                 .build();
 
         JsonArrayBuilder sandwichsLinks = Json.createArrayBuilder();
@@ -134,9 +137,9 @@ public class CategorieRessource {
             sandwichs.add(json2);
         });
 
-        JsonArray links = Json.createArrayBuilder()
-                .add(href)
-                .add(Json.createObjectBuilder().add("sandwichs", sandwichsLinks).build())
+        JsonObject links = Json.createObjectBuilder()
+                .add("self", self)
+                .add("sandwichs", linksSandwichs)
                 .build();
 
         JsonObject details = Json.createObjectBuilder()
