@@ -118,20 +118,17 @@ public class SandwichRessource {
                 .add("href", "/sandwichs/" + s.getId() + "/tailles")
                 .build();
 
-        JsonArrayBuilder categoriesLinks = Json.createArrayBuilder();
+        JsonObject linksCategories = Json.createObjectBuilder()
+                .add("href", "sandwichs/" + s.getId() + "/categories")
+                .build();
+
         JsonArrayBuilder categories = Json.createArrayBuilder();
         s.getCategorie().forEach((c) -> {
-            JsonObject json = Json.createObjectBuilder()
-                    .add("href", "/categories/" + c.getId())
-                    .add("rel", c.getNom())
-                    .build();
-            categoriesLinks.add(json);
-
-            JsonObject json2 = Json.createObjectBuilder()
+            JsonObject categorie = Json.createObjectBuilder()
                     .add("id", c.getId())
                     .add("nom", c.getNom())
                     .build();
-            categories.add(json2);
+            categories.add(categorie);
         });
 
         JsonArrayBuilder tailles = Json.createArrayBuilder();
@@ -146,7 +143,7 @@ public class SandwichRessource {
 
         JsonObject links = Json.createObjectBuilder()
                 .add("self", self)
-                .add("categories", "sandwichs/" + s.getId() + "/categories")
+                .add("categories", linksCategories)
                 .add("tailles", linksTailles)
                 .build();
 

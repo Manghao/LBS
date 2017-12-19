@@ -121,20 +121,13 @@ public class CategorieRessource {
                 .add("href", "/categories/" + c.getId() + "/sandwichs")
                 .build();
 
-        JsonArrayBuilder sandwichsLinks = Json.createArrayBuilder();
         JsonArrayBuilder sandwichs = Json.createArrayBuilder();
         c.getSandwich().forEach((s) -> {
-            JsonObject json = Json.createObjectBuilder()
-                    .add("href", "/sandwichs/" + s.getId())
-                    .add("rel", s.getNom())
-                    .build();
-            sandwichsLinks.add(json);
-
-            JsonObject json2 = Json.createObjectBuilder()
+            JsonObject sandwich = Json.createObjectBuilder()
                     .add("id", s.getId())
                     .add("nom", s.getNom())
                     .build();
-            sandwichs.add(json2);
+            sandwichs.add(sandwich);
         });
 
         JsonObject links = Json.createObjectBuilder()
