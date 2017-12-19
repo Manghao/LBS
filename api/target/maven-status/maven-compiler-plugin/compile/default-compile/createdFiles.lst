@@ -1,6 +1,10 @@
+org\lpro\boundary\categorie\exception\CategorieNotFound.class
+org\lpro\boundary\sandwich\SandwichRessource.class
 org\lpro\entity\Categorie.class
 com\airhacks\JAXRSConfiguration.class
 org\lpro\boundary\sandwich\mapper\SandwichNotFoundMapper.class
 org\lpro\boundary\sandwich\SandwichManager.class
+org\lpro\boundary\categorie\mapper\CategorieNotFoundMapper.class
 org\lpro\boundary\sandwich\exception\SandwichNotFound.class
+org\lpro\boundary\categorie\CategorieManager.class
 org\lpro\entity\Sandwich.class
