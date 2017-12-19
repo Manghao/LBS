@@ -3,6 +3,13 @@ package org.lpro.boundary.commande;
 import org.lpro.entity.Commande;
 
 import java.net.URI;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.TimeZone;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.json.Json;
@@ -32,6 +39,7 @@ public class CommandeRessource {
         @DefaultValue("") @QueryParam("token") String tokenParam,
         @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader
     ) {
+
         Commande cmd = this.cm.findById(commandeId);
         if (cmd == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -52,6 +60,24 @@ public class CommandeRessource {
 
     @POST
     public Response addCommande(@Valid Commande commande) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+            sdf.setTimeZone(TimeZone.getDefault());
+
+            Date current = Date.from(LocalDateTime.now()
+                    .atZone(ZoneId.systemDefault())
+                    .toInstant());
+
+            Date dateCommande = sdf.parse(commande.getDateLivraison() + " " + commande.getHeureLivraison());
+
+            Timestamp currentTimestamp = new Timestamp(current.getTime());
+            Timestamp timestampCommande = new Timestamp(dateCommande.getTime());
+
+            if (timestampCommande.before(currentTimestamp)) {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+        } catch (ParseException pe) { }
+
         Commande newCommande = this.cm.save(commande);
         URI uri = uriInfo.getAbsolutePathBuilder().path(newCommande.getId()).build();
         return Response.created(uri)
