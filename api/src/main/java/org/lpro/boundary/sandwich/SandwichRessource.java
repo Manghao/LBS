@@ -53,9 +53,9 @@ public class SandwichRessource {
 
     @GET
     @Path("{id}")
-    public Response getOneSandwich(@PathParam("id") String id, @Context UriInfo uriInfo) {
+    public Response getOneSandwich(@PathParam("id") String id, @DefaultValue("0") @QueryParam("details") int details, @Context UriInfo uriInfo) {
         return Optional.ofNullable(this.sm.findById(id))
-                .map(s -> Response.ok(sandwich2Json(s)).build())
+                .map(s -> Response.ok((details == 0) ? sandwichJson(s) : sandwich2Json(s)).build())
                 .orElseThrow(() -> new SandwichNotFound("Ressource non disponible" + uriInfo.getPath()));
     }
 
@@ -170,6 +170,30 @@ public class SandwichRessource {
         return Json.createObjectBuilder()
                 .add("type", "resource")
                 .add("sandwich", buildJson(s))
+                .build();
+    }
+
+    private JsonObject sandwichJson(Sandwich s) {
+        JsonObject self = Json.createObjectBuilder()
+                .add("href", "/sandwichs/" + s.getId())
+                .build();
+
+        JsonObject links = Json.createObjectBuilder()
+                .add("self", self)
+                .build();
+
+        JsonObject sandwich = Json.createObjectBuilder()
+                .add("id", s.getId())
+                .add("nom", s.getNom())
+                .add("description", s.getDescription())
+                .add("type_pain", s.getTypePain())
+                .add("img", ((s.getImg() == null) ? "" : s.getImg()))
+                .build();
+
+        return Json.createObjectBuilder()
+                .add("type", "resource")
+                .add("sandwich", sandwich)
+                .add("links", links)
                 .build();
     }
 }
