@@ -36,6 +36,18 @@ public class SandwichRessource {
     @Context
     UriInfo uriInfo;
 
+    /**
+     * @api {get} /sandwichs Récupère tous les sandwichs
+     * @apiName getSandwichs
+     * @apiGroup Sandwich
+     *
+     * @apiParam {Int}[optional] page numéro de la page courante.
+     * @apiParam {Int}[optional] size nombre de sandwichs à afficher dans une page.
+     * @apiParam {String}[optional] t type de pain des sandwich.
+     * @apiParam {Int}[optional] img permet de récupérer les sandwichs ayant une image ou non.
+     *
+     * @apiSuccess {List<Sandwich>} Liste des sandwichs.
+     */
     @GET
     public Response getSandwichs(
             @DefaultValue("1") @QueryParam("page") int page,
@@ -51,6 +63,15 @@ public class SandwichRessource {
         return Response.ok(json).build();
     }
 
+    /**
+     * @api {get} /sandwichs/:id Récupère un sandwich
+     * @apiName getOneSandwich
+     * @apiGroup Sandwich
+     *
+     * @apiParam {String} id ID unique d'un sandwich.
+     *
+     * @apiSuccess {Sandwich} Un sandwich.
+     */
     @GET
     @Path("{id}")
     public Response getOneSandwich(@PathParam("id") String id, @DefaultValue("0") @QueryParam("details") int details, @Context UriInfo uriInfo) {
@@ -59,6 +80,15 @@ public class SandwichRessource {
                 .orElseThrow(() -> new SandwichNotFound("Ressource non disponible" + uriInfo.getPath()));
     }
 
+    /**
+     * @api {get} /sandwichs/:id/categories Récupère les catégories d'un sandwich
+     * @apiName getSandwichCategories
+     * @apiGroup Sandwich
+     *
+     * @apiParam {String} id ID unique d'un sandwich.
+     *
+     * @apiSuccess {Set<Categorie>} Les catégories d'un sandwich.
+     */
     @GET
     @Path("{id}/categories")
     public Response getSandwichCategories(@PathParam("id") String id, @Context UriInfo uriInfo) {
@@ -79,6 +109,13 @@ public class SandwichRessource {
         return Response.ok(json).build();
     }
 
+    /**
+     * @api {post} /sandwichs Crée un nouveau sandwich
+     * @apiName newSandwich
+     * @apiGroup Sandwich
+     *
+     * @apiSuccess {Sandwich} Le sandwich nouvellement créé.
+     */
     @POST
     public Response newSandwich(@Valid Sandwich s, @Context UriInfo uriInfo) {
         Sandwich sand = this.sm.save(s);
@@ -87,6 +124,15 @@ public class SandwichRessource {
         return Response.created(uri).entity(buildJson(sand)).build();
     }
 
+    /**
+     * @api {delete} /sandwichs/:id Supprime un sandwich
+     * @apiName removeSandwich
+     * @apiGroup Sandwich
+     *
+     * @apiParam {String} id ID unique d'un sandwich.
+     *
+     * @apiSuccess {Status} Retourne le statut 204 (No Content).
+     */
     @DELETE
     @Path("{id}")
     public Response removeSandwich(@PathParam("id") String id) {
@@ -94,6 +140,15 @@ public class SandwichRessource {
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
+    /**
+     * @api {put} /sandwichs/:id Modifie un sandwich
+     * @apiName update
+     * @apiGroup Sandwich
+     *
+     * @apiParam {String} id ID unique d'un sandwich.
+     *
+     * @apiSuccess {Sandwich} Le sandwich modifié.
+     */
     @PUT
     @Path("{id}")
     public Sandwich update(@PathParam("id") String id, Sandwich s) {
