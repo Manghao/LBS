@@ -32,6 +32,17 @@ public class CommandeRessource {
     @Context
     UriInfo uriInfo;
 
+    /**
+     * @api {get} /commandes/:id Récupère une commande
+     * @apiName getOneCommande
+     * @apiGroup Commande
+     *
+     * @apiParam {String} commandeId ID unique d'une commande.
+     * @apiParam {String} token token unique d'une commande passé en paramètre de l'url.
+     * @apiParam {String} token token unique d'une commande passé en paramètre dans le header.
+     *
+     * @apiSuccess {Commande} Une commande.
+     */
     @GET
     @Path("/{commandeId}")
     public Response getOneCommande(
@@ -58,6 +69,13 @@ public class CommandeRessource {
         }
     }
 
+    /**
+     * @api {post} /commandes Crée une nouvelle commande
+     * @apiName addCommande
+     * @apiGroup Commande
+     *
+     * @apiSuccess {Commande} Une commande.
+     */
     @POST
     public Response addCommande(@Valid Commande commande) {
         try {
