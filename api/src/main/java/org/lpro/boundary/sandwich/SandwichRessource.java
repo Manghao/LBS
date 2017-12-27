@@ -69,6 +69,7 @@ public class SandwichRessource {
      * @apiGroup Sandwich
      *
      * @apiParam {String} id ID unique d'un sandwich.
+     * @apiParam {Int}[optional] details permet d'afficher la description détaillée ou non d'un sandwich.
      *
      * @apiSuccess {Sandwich} Un sandwich.
      */
