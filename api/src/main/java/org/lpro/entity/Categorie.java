@@ -28,7 +28,8 @@ public class Categorie implements Serializable {
     @ManyToMany
     private Set<Sandwich> sandwich = new HashSet<Sandwich>();
 
-    public Categorie() { }
+    public Categorie() {
+    }
 
     public Categorie(String id, String nom, String description) {
         this.id = id;
