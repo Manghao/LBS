@@ -41,7 +41,7 @@ public class CommandeRessource {
      * @apiParam {String} token token unique d'une commande passé en paramètre de l'url.
      * @apiParam {String} token token unique d'une commande passé en paramètre dans le header.
      *
-     * @apiSuccess {Commande} Une commande.
+     * @apiSuccess {Commande} commande Une commande.
      */
     @GET
     @Path("/{commandeId}")
@@ -74,7 +74,7 @@ public class CommandeRessource {
      * @apiName addCommande
      * @apiGroup Commande
      *
-     * @apiSuccess {Commande} Une commande.
+     * @apiSuccess {Commande} commande Une commande.
      */
     @POST
     public Response addCommande(@Valid Commande commande) {
