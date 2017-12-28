@@ -46,7 +46,7 @@ public class SandwichRessource {
      * @apiParam {String}[optional] t type de pain des sandwich.
      * @apiParam {Int}[optional] img permet de récupérer les sandwichs ayant une image ou non.
      *
-     * @apiSuccess {List<Sandwich>} Liste des sandwichs.
+     * @apiSuccess {List} andwichs Liste des sandwichs.
      */
     @GET
     public Response getSandwichs(
@@ -71,7 +71,7 @@ public class SandwichRessource {
      * @apiParam {String} id ID unique d'un sandwich.
      * @apiParam {Int}[optional] details permet d'afficher la description détaillée ou non d'un sandwich.
      *
-     * @apiSuccess {Sandwich} Un sandwich.
+     * @apiSuccess {Sandwich} sandwich Un sandwich.
      */
     @GET
     @Path("{id}")
@@ -88,7 +88,7 @@ public class SandwichRessource {
      *
      * @apiParam {String} id ID unique d'un sandwich.
      *
-     * @apiSuccess {Set<Categorie>} Les catégories d'un sandwich.
+     * @apiSuccess {List} categories Les catégories d'un sandwich.
      */
     @GET
     @Path("{id}/categories")
@@ -115,7 +115,7 @@ public class SandwichRessource {
      * @apiName newSandwich
      * @apiGroup Sandwich
      *
-     * @apiSuccess {Sandwich} Le sandwich nouvellement créé.
+     * @apiSuccess {Sandwich} sandwich Le sandwich nouvellement créé.
      */
     @POST
     public Response newSandwich(@Valid Sandwich s, @Context UriInfo uriInfo) {
@@ -132,7 +132,7 @@ public class SandwichRessource {
      *
      * @apiParam {String} id ID unique d'un sandwich.
      *
-     * @apiSuccess {Status} Retourne le statut 204 (No Content).
+     * @apiSuccess {Status} status Retourne le code 204 (No Content).
      */
     @DELETE
     @Path("{id}")
@@ -148,7 +148,7 @@ public class SandwichRessource {
      *
      * @apiParam {String} id ID unique d'un sandwich.
      *
-     * @apiSuccess {Sandwich} Le sandwich modifié.
+     * @apiSuccess {Sandwich} sandwich Le sandwich modifié.
      */
     @PUT
     @Path("{id}")

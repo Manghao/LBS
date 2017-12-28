@@ -39,7 +39,7 @@ public class CategorieRessource {
      * @apiName getCategories
      * @apiGroup Categorie
      *
-     * @apiSuccess {List<Categorie>} Liste des catégories.
+     * @apiSuccess {List} categories Liste des catégories.
      */
     @GET
     public Response getCategories() {
@@ -57,7 +57,7 @@ public class CategorieRessource {
      *
      * @apiParam {String} id ID unique d'une catégorie.
      *
-     * @apiSuccess {Categorie} Une catégorie.
+     * @apiSuccess {Categorie} categorie Une catégorie.
      */
     @GET
     @Path("{id}")
@@ -74,7 +74,7 @@ public class CategorieRessource {
      *
      * @apiParam {String} id ID unique d'une catégorie.
      *
-     * @apiSuccess {Set<Sandwich>} Les sandwichs d'une catégorie.
+     * @apiSuccess {List} sandwichs Les sandwichs d'une catégorie.
      */
     @GET
     @Path("{id}/sandwichs")
@@ -103,7 +103,7 @@ public class CategorieRessource {
      *
      * @apiParam {String} id ID unique d'une catégorie.
      *
-     * @apiSuccess {Sandwich} Le sandwich ajouté à la catégorie.
+     * @apiSuccess {Sandwich} sandwich Le sandwich ajouté à la catégorie.
      */
     @POST
     @Path("{id}/sandwichs")
@@ -121,7 +121,7 @@ public class CategorieRessource {
      * @apiName newCategorie
      * @apiGroup Categorie
      *
-     * @apiSuccess {Categorie} La catégorie nouvellement créée.
+     * @apiSuccess {Categorie} categorie La catégorie nouvellement créée.
      */
     @POST
     public Response newCategorie(@Valid Categorie c, @Context UriInfo uriInfo) {
@@ -138,7 +138,7 @@ public class CategorieRessource {
      *
      * @apiParam {String} id ID unique d'une catégorie.
      *
-     * @apiSuccess {Status} Retourne le statut 204 (No Content).
+     * @apiSuccess {Status} status Retourne le code 204 (No Content).
      */
     @DELETE
     @Path("{id}")
@@ -154,7 +154,7 @@ public class CategorieRessource {
      *
      * @apiParam {String} id ID unique d'une catégorie.
      *
-     * @apiSuccess {Categorie} La catégorie modifiée.
+     * @apiSuccess {Categorie} categorie La catégorie modifiée.
      */
     @PUT
     @Path("{id}")
