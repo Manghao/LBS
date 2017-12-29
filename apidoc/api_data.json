@@ -4,7 +4,7 @@
     "url": "/categories/:id/sandwichs",
     "title": "Ajouter un sandwich à une catégorie",
     "name": "addSandwichToCategorie",
-    "group": "Cat_gorie",
+    "group": "Categorie",
     "parameter": {
       "fields": {
         "Parameter": [
@@ -33,14 +33,14 @@
     },
     "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
-    "groupTitle": "Cat_gorie"
+    "groupTitle": "Categorie"
   },
   {
     "type": "get",
     "url": "/categories/:id/sandwichs",
     "title": "Récupérer les sandwichs d'une catégorie",
     "name": "getCategorieSandwichs",
-    "group": "Cat_gorie",
+    "group": "Categorie",
     "parameter": {
       "fields": {
         "Parameter": [
@@ -69,14 +69,14 @@
     },
     "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
-    "groupTitle": "Cat_gorie"
+    "groupTitle": "Categorie"
   },
   {
     "type": "get",
     "url": "/categories",
     "title": "Récupérer toutes les catégories",
     "name": "getCategories",
-    "group": "Cat_gorie",
+    "group": "Categorie",
     "success": {
       "fields": {
         "Success 200": [
@@ -92,14 +92,14 @@
     },
     "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
-    "groupTitle": "Cat_gorie"
+    "groupTitle": "Categorie"
   },
   {
     "type": "get",
     "url": "/categories/:id",
     "title": "Récupérer une catégorie",
     "name": "getOneCategorie",
-    "group": "Cat_gorie",
+    "group": "Categorie",
     "parameter": {
       "fields": {
         "Parameter": [
@@ -140,14 +140,14 @@
     },
     "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
-    "groupTitle": "Cat_gorie"
+    "groupTitle": "Categorie"
   },
   {
     "type": "post",
     "url": "/categories",
     "title": "Créer une nouvelle catégorie",
     "name": "newCategorie",
-    "group": "Cat_gorie",
+    "group": "Categorie",
     "success": {
       "fields": {
         "Success 200": [
@@ -163,14 +163,14 @@
     },
     "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
-    "groupTitle": "Cat_gorie"
+    "groupTitle": "Categorie"
   },
   {
     "type": "delete",
     "url": "/categories/:id",
     "title": "Supprimer une catégorie",
     "name": "removeCategorie",
-    "group": "Cat_gorie",
+    "group": "Categorie",
     "parameter": {
       "fields": {
         "Parameter": [
@@ -199,14 +199,14 @@
     },
     "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
-    "groupTitle": "Cat_gorie"
+    "groupTitle": "Categorie"
   },
   {
     "type": "put",
     "url": "/categories/:id",
     "title": "Modifier une catégorie",
     "name": "update",
-    "group": "Cat_gorie",
+    "group": "Categorie",
     "parameter": {
       "fields": {
         "Parameter": [
@@ -235,7 +235,7 @@
     },
     "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
-    "groupTitle": "Cat_gorie"
+    "groupTitle": "Categorie"
   },
   {
     "type": "post",
