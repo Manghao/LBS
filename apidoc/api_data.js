@@ -205,7 +205,7 @@ define({ "api": [
     "type": "put",
     "url": "/categories/:id",
     "title": "Modifier une catégorie",
-    "name": "update",
+    "name": "updateCategorie",
     "group": "Categorie",
     "parameter": {
       "fields": {
@@ -273,7 +273,7 @@ define({ "api": [
             "group": "Parameter",
             "type": "String",
             "optional": false,
-            "field": "commandeId",
+            "field": "id",
             "description": "<p>ID unique d'une commande.</p>"
           },
           {
@@ -312,7 +312,75 @@ define({ "api": [
             "group": "Error 4xx",
             "optional": false,
             "field": "CommandeForbidden",
-            "description": "<p>Le <code>token</code> de la commande n'existe pas.</p>"
+            "description": "<p>Le <code>token</code> de la commande n'existe pas ou n'est pas le bon.</p>"
+          }
+        ]
+      }
+    },
+    "version": "1.0.0",
+    "filename": "api/src/main/java/org/lpro/boundary/commande/CommandeRessource.java",
+    "groupTitle": "Commande"
+  },
+  {
+    "type": "put",
+    "url": "/commandes/:id",
+    "title": "Modifier la date et l'heure de livraison d'une commande",
+    "name": "updateCommande",
+    "group": "Commande",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID unique d'une commande.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "token",
+            "description": "<p>token unique d'une commande passé en paramètre de l'url.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Commande",
+            "optional": false,
+            "field": "c",
+            "description": "<p>commande contenant la nouvelle date et heure de livraison.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Commande",
+            "optional": false,
+            "field": "commande",
+            "description": "<p>Une commande.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "CommandeNotFound",
+            "description": "<p>L'<code>id</code> de la commande n'existe pas.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "CommandeForbidden",
+            "description": "<p>Le <code>token</code> de la commande n'existe pas ou n'est pas le bon.</p>"
           }
         ]
       }
@@ -511,7 +579,7 @@ define({ "api": [
     "type": "put",
     "url": "/sandwichs/:id",
     "title": "Modifier un sandwich",
-    "name": "update",
+    "name": "updateSandwich",
     "group": "Sandwich",
     "parameter": {
       "fields": {

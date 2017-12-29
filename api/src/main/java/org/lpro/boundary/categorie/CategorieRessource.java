@@ -150,7 +150,7 @@ public class CategorieRessource {
 
     /**
      * @api {put} /categories/:id Modifier une catégorie
-     * @apiName update
+     * @apiName updateCategorie
      * @apiGroup Categorie
      *
      * @apiParam {String} id ID unique d'une catégorie.
@@ -159,7 +159,7 @@ public class CategorieRessource {
      */
     @PUT
     @Path("{id}")
-    public Categorie update(@PathParam("id") String id, Categorie c) {
+    public Categorie updateCategorie(@PathParam("id") String id, Categorie c) {
         c.setId(id);
         return this.cm.save(c);
     }

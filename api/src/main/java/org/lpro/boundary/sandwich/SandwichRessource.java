@@ -144,7 +144,7 @@ public class SandwichRessource {
 
     /**
      * @api {put} /sandwichs/:id Modifier un sandwich
-     * @apiName update
+     * @apiName updateSandwich
      * @apiGroup Sandwich
      *
      * @apiParam {String} id ID unique d'un sandwich.
@@ -153,7 +153,7 @@ public class SandwichRessource {
      */
     @PUT
     @Path("{id}")
-    public Sandwich update(@PathParam("id") String id, Sandwich s) {
+    public Sandwich updateSandwich(@PathParam("id") String id, Sandwich s) {
         s.setId(id);
         return this.sm.save(s);
     }
