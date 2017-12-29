@@ -35,7 +35,7 @@ public class CategorieRessource {
     UriInfo uriInfo;
 
     /**
-     * @api {get} /categories Récupère toutes les catégories
+     * @api {get} /categories Récupérer toutes les catégories
      * @apiName getCategories
      * @apiGroup Categorie
      *
@@ -51,13 +51,14 @@ public class CategorieRessource {
     }
 
     /**
-     * @api {get} /categories/:id Récupère une catégorie
+     * @api {get} /categories/:id Récupérer une catégorie
      * @apiName getOneCategorie
      * @apiGroup Categorie
      *
      * @apiParam {String} id ID unique d'une catégorie.
      *
      * @apiSuccess {Categorie} categorie Une catégorie.
+     * @apiError CategorieNotFound L'<code>id</code> de la catégorie n'existe pas.
      */
     @GET
     @Path("{id}")
@@ -68,7 +69,7 @@ public class CategorieRessource {
     }
 
     /**
-     * @api {get} /categories/:id/sandwichs Récupère les sandwichs d'une catégorie
+     * @api {get} /categories/:id/sandwichs Récupérer les sandwichs d'une catégorie
      * @apiName getCategorieSandwichs
      * @apiGroup Categorie
      *
@@ -97,7 +98,7 @@ public class CategorieRessource {
     }
 
     /**
-     * @api {post} /categories/:id/sandwichs Ajoute un sandwich à une catégorie
+     * @api {post} /categories/:id/sandwichs Ajouter un sandwich à une catégorie
      * @apiName addSandwichToCategorie
      * @apiGroup Categorie
      *
@@ -117,7 +118,7 @@ public class CategorieRessource {
     }
 
     /**
-     * @api {post} /categories Crée une nouvelle catégorie
+     * @api {post} /categories Créer une nouvelle catégorie
      * @apiName newCategorie
      * @apiGroup Categorie
      *
@@ -132,7 +133,7 @@ public class CategorieRessource {
     }
 
     /**
-     * @api {delete} /categories/:id Supprime une catégorie
+     * @api {delete} /categories/:id Supprimer une catégorie
      * @apiName removeCategorie
      * @apiGroup Categorie
      *
@@ -148,7 +149,7 @@ public class CategorieRessource {
     }
 
     /**
-     * @api {put} /categories/:id Modifie une catégorie
+     * @api {put} /categories/:id Modifier une catégorie
      * @apiName update
      * @apiGroup Categorie
      *

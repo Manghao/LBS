@@ -1,13 +1,13 @@
 define({
-  "name": "",
-  "version": "0.0.0",
-  "description": "",
+  "name": "Le Bon Sandwich",
+  "version": "1.0.0",
+  "description": "apiDoc du bon sandwich",
+  "defaultVersion": "1.0.0",
   "sampleUrl": false,
-  "defaultVersion": "0.0.0",
   "apidoc": "0.3.0",
   "generator": {
     "name": "apidoc",
-    "time": "2017-12-28T23:51:20.558Z",
+    "time": "2017-12-29T00:25:48.071Z",
     "url": "http://apidocjs.com",
     "version": "0.17.6"
   }

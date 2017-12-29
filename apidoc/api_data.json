@@ -2,7 +2,7 @@
   {
     "type": "post",
     "url": "/categories/:id/sandwichs",
-    "title": "Ajoute un sandwich à une catégorie",
+    "title": "Ajouter un sandwich à une catégorie",
     "name": "addSandwichToCategorie",
     "group": "Categorie",
     "parameter": {
@@ -31,14 +31,14 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
     "groupTitle": "Categorie"
   },
   {
     "type": "get",
     "url": "/categories/:id/sandwichs",
-    "title": "Récupère les sandwichs d'une catégorie",
+    "title": "Récupérer les sandwichs d'une catégorie",
     "name": "getCategorieSandwichs",
     "group": "Categorie",
     "parameter": {
@@ -67,14 +67,14 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
     "groupTitle": "Categorie"
   },
   {
     "type": "get",
     "url": "/categories",
-    "title": "Récupère toutes les catégories",
+    "title": "Récupérer toutes les catégories",
     "name": "getCategories",
     "group": "Categorie",
     "success": {
@@ -90,14 +90,14 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
     "groupTitle": "Categorie"
   },
   {
     "type": "get",
     "url": "/categories/:id",
-    "title": "Récupère une catégorie",
+    "title": "Récupérer une catégorie",
     "name": "getOneCategorie",
     "group": "Categorie",
     "parameter": {
@@ -126,14 +126,26 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "CategorieNotFound",
+            "description": "<p>L'<code>id</code> de la catégorie n'existe pas.</p>"
+          }
+        ]
+      }
+    },
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
     "groupTitle": "Categorie"
   },
   {
     "type": "post",
     "url": "/categories",
-    "title": "Crée une nouvelle catégorie",
+    "title": "Créer une nouvelle catégorie",
     "name": "newCategorie",
     "group": "Categorie",
     "success": {
@@ -149,14 +161,14 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
     "groupTitle": "Categorie"
   },
   {
     "type": "delete",
     "url": "/categories/:id",
-    "title": "Supprime une catégorie",
+    "title": "Supprimer une catégorie",
     "name": "removeCategorie",
     "group": "Categorie",
     "parameter": {
@@ -185,14 +197,14 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
     "groupTitle": "Categorie"
   },
   {
     "type": "put",
     "url": "/categories/:id",
-    "title": "Modifie une catégorie",
+    "title": "Modifier une catégorie",
     "name": "update",
     "group": "Categorie",
     "parameter": {
@@ -221,14 +233,14 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
     "groupTitle": "Categorie"
   },
   {
     "type": "post",
     "url": "/commandes",
-    "title": "Crée une nouvelle commande",
+    "title": "Créer une nouvelle commande",
     "name": "addCommande",
     "group": "Commande",
     "success": {
@@ -244,14 +256,14 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/commande/CommandeRessource.java",
     "groupTitle": "Commande"
   },
   {
     "type": "get",
     "url": "/commandes/:id",
-    "title": "Récupère une commande",
+    "title": "Récupérer une commande",
     "name": "getOneCommande",
     "group": "Commande",
     "parameter": {
@@ -287,14 +299,32 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "CommandeNotFound",
+            "description": "<p>L'<code>id</code> de la commande n'existe pas.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "CommandeForbidden",
+            "description": "<p>Le <code>token</code> de la commande n'existe pas.</p>"
+          }
+        ]
+      }
+    },
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/commande/CommandeRessource.java",
     "groupTitle": "Commande"
   },
   {
     "type": "get",
     "url": "/sandwichs/:id",
-    "title": "Récupère un sandwich",
+    "title": "Récupérer un sandwich",
     "name": "getOneSandwich",
     "group": "Sandwich",
     "parameter": {
@@ -330,14 +360,26 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "SandwichNotFound",
+            "description": "<p>L'<code>id</code> du sandwich n'existe pas.</p>"
+          }
+        ]
+      }
+    },
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/sandwich/SandwichRessource.java",
     "groupTitle": "Sandwich"
   },
   {
     "type": "get",
     "url": "/sandwichs/:id/categories",
-    "title": "Récupère les catégories d'un sandwich",
+    "title": "Récupérer les catégories d'un sandwich",
     "name": "getSandwichCategories",
     "group": "Sandwich",
     "parameter": {
@@ -366,14 +408,14 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/sandwich/SandwichRessource.java",
     "groupTitle": "Sandwich"
   },
   {
     "type": "get",
     "url": "/sandwichs",
-    "title": "Récupère tous les sandwichs",
+    "title": "Récupérer tous les sandwichs",
     "name": "getSandwichs",
     "group": "Sandwich",
     "parameter": {
@@ -396,20 +438,20 @@
             "group": "Success 200",
             "type": "List",
             "optional": false,
-            "field": "andwichs",
+            "field": "sandwichs",
             "description": "<p>Liste des sandwichs.</p>"
           }
         ]
       }
     },
-    "version": "0.0.0",
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/sandwich/SandwichRessource.java",
     "groupTitle": "Sandwich"
   },
   {
     "type": "post",
     "url": "/sandwichs",
-    "title": "Crée un nouveau sandwich",
+    "title": "Créer un nouveau sandwich",
     "name": "newSandwich",
     "group": "Sandwich",
     "success": {
@@ -425,14 +467,14 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/sandwich/SandwichRessource.java",
     "groupTitle": "Sandwich"
   },
   {
     "type": "delete",
     "url": "/sandwichs/:id",
-    "title": "Supprime un sandwich",
+    "title": "Supprimer un sandwich",
     "name": "removeSandwich",
     "group": "Sandwich",
     "parameter": {
@@ -461,14 +503,14 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/sandwich/SandwichRessource.java",
     "groupTitle": "Sandwich"
   },
   {
     "type": "put",
     "url": "/sandwichs/:id",
-    "title": "Modifie un sandwich",
+    "title": "Modifier un sandwich",
     "name": "update",
     "group": "Sandwich",
     "parameter": {
@@ -497,7 +539,7 @@
         ]
       }
     },
-    "version": "0.0.0",
+    "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/sandwich/SandwichRessource.java",
     "groupTitle": "Sandwich"
   }
