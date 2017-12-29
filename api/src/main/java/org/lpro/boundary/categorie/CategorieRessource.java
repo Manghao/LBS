@@ -37,7 +37,7 @@ public class CategorieRessource {
     /**
      * @api {get} /categories Récupérer toutes les catégories
      * @apiName getCategories
-     * @apiGroup Categorie
+     * @apiGroup Catégorie
      *
      * @apiSuccess {List} categories Liste des catégories.
      */
@@ -53,7 +53,7 @@ public class CategorieRessource {
     /**
      * @api {get} /categories/:id Récupérer une catégorie
      * @apiName getOneCategorie
-     * @apiGroup Categorie
+     * @apiGroup Catégorie
      *
      * @apiParam {String} id ID unique d'une catégorie.
      *
@@ -71,7 +71,7 @@ public class CategorieRessource {
     /**
      * @api {get} /categories/:id/sandwichs Récupérer les sandwichs d'une catégorie
      * @apiName getCategorieSandwichs
-     * @apiGroup Categorie
+     * @apiGroup Catégorie
      *
      * @apiParam {String} id ID unique d'une catégorie.
      *
@@ -100,7 +100,7 @@ public class CategorieRessource {
     /**
      * @api {post} /categories/:id/sandwichs Ajouter un sandwich à une catégorie
      * @apiName addSandwichToCategorie
-     * @apiGroup Categorie
+     * @apiGroup Catégorie
      *
      * @apiParam {String} id ID unique d'une catégorie.
      *
@@ -120,7 +120,7 @@ public class CategorieRessource {
     /**
      * @api {post} /categories Créer une nouvelle catégorie
      * @apiName newCategorie
-     * @apiGroup Categorie
+     * @apiGroup Catégorie
      *
      * @apiSuccess {Categorie} categorie La catégorie nouvellement créée.
      */
@@ -135,7 +135,7 @@ public class CategorieRessource {
     /**
      * @api {delete} /categories/:id Supprimer une catégorie
      * @apiName removeCategorie
-     * @apiGroup Categorie
+     * @apiGroup Catégorie
      *
      * @apiParam {String} id ID unique d'une catégorie.
      *
@@ -151,7 +151,7 @@ public class CategorieRessource {
     /**
      * @api {put} /categories/:id Modifier une catégorie
      * @apiName update
-     * @apiGroup Categorie
+     * @apiGroup Catégorie
      *
      * @apiParam {String} id ID unique d'une catégorie.
      *
