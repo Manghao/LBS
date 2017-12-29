@@ -37,7 +37,7 @@ public class SandwichRessource {
     UriInfo uriInfo;
 
     /**
-     * @api {get} /sandwichs Récupère tous les sandwichs
+     * @api {get} /sandwichs Récupérer tous les sandwichs
      * @apiName getSandwichs
      * @apiGroup Sandwich
      *
@@ -46,7 +46,7 @@ public class SandwichRessource {
      * @apiParam {String}[optional] t type de pain des sandwich.
      * @apiParam {Int}[optional] img permet de récupérer les sandwichs ayant une image ou non.
      *
-     * @apiSuccess {List} andwichs Liste des sandwichs.
+     * @apiSuccess {List} sandwichs Liste des sandwichs.
      */
     @GET
     public Response getSandwichs(
@@ -64,7 +64,7 @@ public class SandwichRessource {
     }
 
     /**
-     * @api {get} /sandwichs/:id Récupère un sandwich
+     * @api {get} /sandwichs/:id Récupérer un sandwich
      * @apiName getOneSandwich
      * @apiGroup Sandwich
      *
@@ -72,6 +72,7 @@ public class SandwichRessource {
      * @apiParam {Int}[optional] details permet d'afficher la description détaillée ou non d'un sandwich.
      *
      * @apiSuccess {Sandwich} sandwich Un sandwich.
+     * @apiError SandwichNotFound L'<code>id</code> du sandwich n'existe pas.
      */
     @GET
     @Path("{id}")
@@ -82,7 +83,7 @@ public class SandwichRessource {
     }
 
     /**
-     * @api {get} /sandwichs/:id/categories Récupère les catégories d'un sandwich
+     * @api {get} /sandwichs/:id/categories Récupérer les catégories d'un sandwich
      * @apiName getSandwichCategories
      * @apiGroup Sandwich
      *
@@ -111,7 +112,7 @@ public class SandwichRessource {
     }
 
     /**
-     * @api {post} /sandwichs Crée un nouveau sandwich
+     * @api {post} /sandwichs Créer un nouveau sandwich
      * @apiName newSandwich
      * @apiGroup Sandwich
      *
@@ -126,7 +127,7 @@ public class SandwichRessource {
     }
 
     /**
-     * @api {delete} /sandwichs/:id Supprime un sandwich
+     * @api {delete} /sandwichs/:id Supprimer un sandwich
      * @apiName removeSandwich
      * @apiGroup Sandwich
      *
@@ -142,7 +143,7 @@ public class SandwichRessource {
     }
 
     /**
-     * @api {put} /sandwichs/:id Modifie un sandwich
+     * @api {put} /sandwichs/:id Modifier un sandwich
      * @apiName update
      * @apiGroup Sandwich
      *

@@ -33,7 +33,7 @@ public class CommandeRessource {
     UriInfo uriInfo;
 
     /**
-     * @api {get} /commandes/:id Récupère une commande
+     * @api {get} /commandes/:id Récupérer une commande
      * @apiName getOneCommande
      * @apiGroup Commande
      *
@@ -42,6 +42,8 @@ public class CommandeRessource {
      * @apiParam {String} token token unique d'une commande passé en paramètre dans le header.
      *
      * @apiSuccess {Commande} commande Une commande.
+     * @apiError CommandeNotFound L'<code>id</code> de la commande n'existe pas.
+     * @apiError CommandeForbidden Le <code>token</code> de la commande n'existe pas.
      */
     @GET
     @Path("/{commandeId}")
@@ -70,7 +72,7 @@ public class CommandeRessource {
     }
 
     /**
-     * @api {post} /commandes Crée une nouvelle commande
+     * @api {post} /commandes Créer une nouvelle commande
      * @apiName addCommande
      * @apiGroup Commande
      *
