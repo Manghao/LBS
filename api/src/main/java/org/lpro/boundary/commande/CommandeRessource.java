@@ -29,6 +29,7 @@ public class CommandeRessource {
 
     @Inject
     CommandeManager cm;
+
     @Context
     UriInfo uriInfo;
 
@@ -37,23 +38,22 @@ public class CommandeRessource {
      * @apiName getOneCommande
      * @apiGroup Commande
      *
-     * @apiParam {String} commandeId ID unique d'une commande.
+     * @apiParam {String} id ID unique d'une commande.
      * @apiParam {String} token token unique d'une commande passé en paramètre de l'url.
      * @apiParam {String} token token unique d'une commande passé en paramètre dans le header.
      *
      * @apiSuccess {Commande} commande Une commande.
      * @apiError CommandeNotFound L'<code>id</code> de la commande n'existe pas.
-     * @apiError CommandeForbidden Le <code>token</code> de la commande n'existe pas.
+     * @apiError CommandeForbidden Le <code>token</code> de la commande n'existe pas ou n'est pas le bon.
      */
     @GET
-    @Path("/{commandeId}")
+    @Path("{id}")
     public Response getOneCommande(
-        @PathParam("commandeId") String commandeId,
+        @PathParam("id") String id,
         @DefaultValue("") @QueryParam("token") String tokenParam,
         @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader
     ) {
-
-        Commande cmd = this.cm.findById(commandeId);
+        Commande cmd = this.cm.findById(id);
         if (cmd == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
@@ -63,8 +63,8 @@ public class CommandeRessource {
         }
 
         String token = (tokenParam.isEmpty()) ? tokenHeader : tokenParam;
-        boolean isValid = cmd.getToken().equals(token);
-        if (!isValid) {
+
+        if (!cmd.getToken().equals(token)) {
             return Response.status(Response.Status.FORBIDDEN).build();
         } else {
             return Response.ok(this.buildCommandeObject(cmd)).build();
@@ -103,6 +103,48 @@ public class CommandeRessource {
         return Response.created(uri)
                 .entity(newCommande)
                 .build();
+    }
+
+    /**
+     * @api {put} /commandes/:id Modifier la date et l'heure de livraison d'une commande
+     * @apiName updateCommande
+     * @apiGroup Commande
+     *
+     * @apiParam {String} id ID unique d'une commande.
+     * @apiParam {String} token token unique d'une commande passé en paramètre de l'url.
+     * @apiParam {String} token token unique d'une commande passé en paramètre dans le header.
+     * @apiParam {Commande} c commande contenant la nouvelle date et heure de livraison.
+     *
+     * @apiSuccess {Commande} commande Une commande.
+     * @apiError CommandeNotFound L'<code>id</code> de la commande n'existe pas.
+     * @apiError CommandeForbidden Le <code>token</code> de la commande n'existe pas ou n'est pas le bon.
+     */
+    @PUT
+    @Path("{id}")
+    public Response updateCommande(
+            @PathParam("id") String id,
+            @DefaultValue("") @QueryParam("token") String tokenParam,
+            @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
+            Commande c
+    ) {
+        Commande cmd = this.cm.findById(id);
+        if (cmd == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        if (tokenParam.isEmpty() && tokenHeader.isEmpty()) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        String token = (tokenParam.isEmpty()) ? tokenHeader : tokenParam;
+
+        if (!cmd.getToken().equals(token)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        } else {
+            cmd.setDateLivraison(c.getDateLivraison());
+            cmd.setHeureLivraison(c.getHeureLivraison());
+
+            return Response.ok(this.buildCommandeObject(cmd)).build();
+        }
     }
 
     private JsonObject buildCommandeObject(Commande c) {
