@@ -1,6 +1,7 @@
 package org.lpro.entity;
 
 public class Accreditation {
+
     private String username;
     private String password;
 
