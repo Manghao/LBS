@@ -146,6 +146,7 @@ public class CommandeRessource {
             return Response.ok(this.buildCommandeObject(cmd)).build();
         }
     }
+    
 
     private JsonObject buildCommandeObject(Commande c) {
         return Json.createObjectBuilder()
