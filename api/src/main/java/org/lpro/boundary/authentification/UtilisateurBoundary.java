@@ -19,14 +19,17 @@ import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 
 import org.lpro.control.KeyManagement;
 import org.lpro.control.PasswordManagement;
-import org.lpro.entity.Accreditation;
+import org.lpro.entity.Utilisateur;
 import org.mindrot.jbcrypt.BCrypt;
 
 @Path("/authentification")
-public class AuthentificationBoundary {
+public class UtilisateurBoundary {
 
     @Inject
     private KeyManagement keyManagement;
+
+    @Inject
+    private UtilisateurManager um;
 
     @Context
     private UriInfo uriInfo;
@@ -34,39 +37,47 @@ public class AuthentificationBoundary {
     @POST
     @Produces("application/json")
     @Consumes("application/json")
-    public Response authentifieUtilisateur(Accreditation accrediation) {
+    public Response authentifieUtilisateur(Utilisateur utilisateur) {
         try {
-            String nomUtilisateur = accrediation.getUsername();
-            String motDePasse = accrediation.getPassword();
-            // On authentifie l'utilisateur en utilisant les crédentails fournis
-            authentifie(nomUtilisateur, motDePasse);
-            // On fournit un token
-            String token = issueToken(nomUtilisateur);
-            return Response.ok().header(AUTHORIZATION, "Bearer " + token).build();
+            String mail = utilisateur.getMail();
+            String password = utilisateur.getPassword();
 
+            String digest = PasswordManagement.digestPassword(password);
+            System.out.println("hash " + digest);
+            Utilisateur one = this.um.findUtilisateur(mail);
+
+            if (one != null) {
+                this.authentifie(mail, password, one);
+
+                String token = this.issueToken(mail);
+                return Response.ok().header(AUTHORIZATION, "Bearer " + token).build();
+            } else {
+                return Response.status(Response.Status.UNAUTHORIZED).build();
+            }
         } catch (Exception e) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
     }
 
-    private void authentifie(String nomUtilisateur, String motDePasse) throws Exception {
-        System.out.println("hash : "+ PasswordManagement.digestPassword(motDePasse));
-        // On authentifie l'utilisateur en utilisant la BD, LDAP,...
-        // On lève une exception si les crédentials sont invalides
-        String motDePasseBD = "$2a$10$hptny9c6DZW25O5v8hy1Oe0IjsLy89Ho6rHzutlDlj.Ts5L090Jii";
-        if (nomUtilisateur.equals("olivier") && BCrypt.checkpw(motDePasse, motDePasseBD)) { 
+    private void authentifie(String mail, String password, Utilisateur utilisateur) throws Exception {
+        if (utilisateur != null) {
+            if (mail.equals(utilisateur.getMail()) && BCrypt.checkpw(password, utilisateur.getPassword())) {
+            } else {
+                throw new NotAuthorizedException("Problème d'authentification");
+            }
         } else {
-            throw new NotAuthorizedException("Problème d'authentification");
+            throw new NotAuthorizedException("Utilisateur introuvable");
         }
     }
 
-    private String issueToken(String login) {
+    private String issueToken(String mail) {
         Key key = keyManagement.generateKey();
         String jwtToken = Jwts.builder()
-                .setSubject(login)
+                .setSubject(mail)
                 .setIssuer(uriInfo.getAbsolutePath().toString())
                 .setIssuedAt(new Date())
-                .setExpiration(toDate(LocalDateTime.now().plusMinutes(5L)))
+                // .setExpiration(toDate(LocalDateTime.now().plusMinutes(5L)))
+                .setExpiration(this.toDate(LocalDateTime.now().plusHours(2L)))
                 .signWith(SignatureAlgorithm.HS512, key)
                 .compact();
         System.out.println(">>>> token/key : " + jwtToken + " -- " + key);
