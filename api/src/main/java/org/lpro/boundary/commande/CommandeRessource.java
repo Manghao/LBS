@@ -107,6 +107,21 @@ public class CommandeRessource {
                 .build();
     }
 
+    /**
+     * @api {post} /commandes/:id/sandwichs Ajouter un sandwich à une commande
+     * @apiName addSandwichToCommande
+     * @apiGroup Commande
+     *
+     * @apiParam {String} id ID unique d'une commande.
+     * @apiParam {String} token token unique d'une commande passé en paramètre de l'url.
+     * @apiParam {String} token token unique d'une commande passé en paramètre dans le header.
+     * @apiParam {Sandwich} s sandwich à ajouter à la commande.
+     *
+     * @apiSuccess {String} résultat String indiquant que le sandwich a bien été ajouté à la commande.
+     * @apiError CommandeNotFound L'<code>id</code> de la commande n'existe pas.
+     * @apiError CommandeForbidden Le <code>token</code> de la commande n'existe pas ou n'est pas le bon.
+     * @apiError SandwichNotFound Le <code>sandwich</code> à ajouter n'existe pas.
+     */
     @POST
     @Path("{id}/sandwichs")
     public Response addSandwichToCommande(
@@ -128,7 +143,7 @@ public class CommandeRessource {
         if (!cmd.getToken().equals(token)) {
             return Response.status(Response.Status.FORBIDDEN).build();
         } else {
-            Sandwich sand = this.cm.addSandwich(id, s.getId());
+            Sandwich sand = this.cm.addSandwich(id, s);
 
             if (sand != null) {
                 return Response.ok(

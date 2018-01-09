@@ -42,10 +42,10 @@ public class CommandeManager {
         return this.em.merge(c);
     }
 
-    public Sandwich addSandwich(String cmdId, String idSand) {
+    public Sandwich addSandwich(String cmdId, Sandwich sand) {
         Sandwich s;
         TypedQuery<Sandwich> query = this.em.createQuery("SELECT s FROM Sandwich s WHERE s.id = :id", Sandwich.class);
-        query.setParameter("id", idSand);
+        query.setParameter("id", sand.getId());
         try {
             s = query.getSingleResult();
             Commande cmd = this.em.find(Commande.class, cmdId);
