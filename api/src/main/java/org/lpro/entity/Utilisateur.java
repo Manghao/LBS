@@ -24,9 +24,10 @@ public class Utilisateur implements Serializable {
     private String nom, prenom;
 
     @NotNull
-    private String password, salt;
+    private String password;
 
     @NotNull
+    @Column(unique = true)
     @Pattern(regexp = "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])")
     private String mail;
 
@@ -35,10 +36,16 @@ public class Utilisateur implements Serializable {
 
     public Utilisateur() { }
 
-    public Utilisateur(String nom, String prenom, String mail) {
+    public Utilisateur(String mail, String password) {
+        this.mail = mail;
+        this.password = password;
+    }
+
+    public Utilisateur(String nom, String prenom, String mail, String password) {
         this.nom = nom;
         this.prenom = prenom;
         this.mail = mail;
+        this.password = password;
     }
 
     public String getId() {
@@ -81,11 +88,4 @@ public class Utilisateur implements Serializable {
         this.password = password;
     }
 
-    public String getSalt() {
-        return salt;
-    }
-
-    public void setSalt(String salt) {
-        this.salt = salt;
-    }
 }
