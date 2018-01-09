@@ -65,7 +65,7 @@ public class SandwichManager {
 
     public Sandwich addSandwich(String catId, Sandwich sand) {
         Sandwich s;
-        TypedQuery<Sandwich> query = em.createQuery("SELECT s FROM Sandwich s WHERE s.nom = :n", Sandwich.class);
+        TypedQuery<Sandwich> query = this.em.createQuery("SELECT s FROM Sandwich s WHERE s.nom = :n", Sandwich.class);
         query.setParameter("n", sand.getNom());
         try {
             s = query.getSingleResult();

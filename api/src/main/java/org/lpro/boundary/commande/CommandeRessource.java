@@ -1,6 +1,8 @@
 package org.lpro.boundary.commande;
 
+import org.lpro.boundary.sandwich.SandwichRessource;
 import org.lpro.entity.Commande;
+import org.lpro.entity.Sandwich;
 
 import java.net.URI;
 import java.sql.Timestamp;
@@ -105,6 +107,42 @@ public class CommandeRessource {
                 .build();
     }
 
+    @POST
+    @Path("{id}/sandwichs")
+    public Response addSandwichToCommande(
+            @PathParam("id") String id,
+            @DefaultValue("") @QueryParam("token") String tokenParam,
+            @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
+            Sandwich s
+    ) {
+        Commande cmd = this.cm.findById(id);
+        if (cmd == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        if (tokenParam.isEmpty() && tokenHeader.isEmpty()) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        String token = (tokenParam.isEmpty()) ? tokenHeader : tokenParam;
+
+        if (!cmd.getToken().equals(token)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        } else {
+            Sandwich sand = this.cm.addSandwich(id, s.getId());
+
+            if (sand != null) {
+                return Response.ok(
+                        Json.createObjectBuilder()
+                                .add("résultat", "Sandwich " + sand.getNom() + " bien ajouté à la commande")
+                                .build()
+                ).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        }
+    }
+
+
     /**
      * @api {put} /commandes/:id Modifier la date et l'heure de livraison d'une commande
      * @apiName updateCommande
@@ -146,7 +184,6 @@ public class CommandeRessource {
             return Response.ok(this.buildCommandeObject(cmd)).build();
         }
     }
-    
 
     private JsonObject buildCommandeObject(Commande c) {
         return Json.createObjectBuilder()

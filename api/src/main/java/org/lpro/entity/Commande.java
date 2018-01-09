@@ -34,6 +34,9 @@ public class Commande implements Serializable {
     @ManyToMany(mappedBy = "commande")
     private Set<Utilisateur> utilisateur = new HashSet<Utilisateur>();
 
+    @ManyToMany(mappedBy = "commande")
+    private Set<Sandwich> sandwich = new HashSet<Sandwich>();
+
     public Commande() {  }
 
     public Commande(String nom, String prenom, String mail, String dateLivraison, String heureLivraison) {
@@ -98,6 +101,14 @@ public class Commande implements Serializable {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public Set<Sandwich> getSandwich() {
+        return sandwich;
+    }
+
+    public void setSandwich(Set<Sandwich> sandwich) {
+        this.sandwich = sandwich;
     }
 
 }

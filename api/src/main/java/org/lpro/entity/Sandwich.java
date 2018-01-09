@@ -1,9 +1,6 @@
 package org.lpro.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedQuery;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -37,6 +34,9 @@ public class Sandwich implements Serializable {
 
     @ManyToMany
     private Set<Taille> taille = new HashSet<Taille>();
+
+    @ManyToMany
+    private Set<Commande> commande = new HashSet<Commande>();
 
     public Sandwich() { }
 
