@@ -34,6 +34,13 @@ public class CategorieRessource {
     @Context
     UriInfo uriInfo;
 
+    /**
+     * @api {get} /categories Récupérer toutes les catégories
+     * @apiName getCategories
+     * @apiGroup Categorie
+     *
+     * @apiSuccess {List} categories Liste des catégories.
+     */
     @GET
     public Response getCategories() {
         JsonObject json = Json.createObjectBuilder()
@@ -43,6 +50,16 @@ public class CategorieRessource {
         return Response.ok(json).build();
     }
 
+    /**
+     * @api {get} /categories/:id Récupérer une catégorie
+     * @apiName getOneCategorie
+     * @apiGroup Categorie
+     *
+     * @apiParam {String} id ID unique d'une catégorie.
+     *
+     * @apiSuccess {Categorie} categorie Une catégorie.
+     * @apiError CategorieNotFound L'<code>id</code> de la catégorie n'existe pas.
+     */
     @GET
     @Path("{id}")
     public Response getOneCategorie(@PathParam("id") String id, @Context UriInfo uriInfo) {
@@ -51,6 +68,15 @@ public class CategorieRessource {
                 .orElseThrow(() -> new CategorieNotFound("Ressource non disponible" + uriInfo.getPath()));
     }
 
+    /**
+     * @api {get} /categories/:id/sandwichs Récupérer les sandwichs d'une catégorie
+     * @apiName getCategorieSandwichs
+     * @apiGroup Categorie
+     *
+     * @apiParam {String} id ID unique d'une catégorie.
+     *
+     * @apiSuccess {List} sandwichs Les sandwichs d'une catégorie.
+     */
     @GET
     @Path("{id}/sandwichs")
     public Response getCategorieSandwichs(@PathParam("id") String id, @Context UriInfo uriInfo) {
@@ -71,6 +97,15 @@ public class CategorieRessource {
         return Response.ok(json).build();
     }
 
+    /**
+     * @api {post} /categories/:id/sandwichs Ajouter un sandwich à une catégorie
+     * @apiName addSandwichToCategorie
+     * @apiGroup Categorie
+     *
+     * @apiParam {String} id ID unique d'une catégorie.
+     *
+     * @apiSuccess {Sandwich} sandwich Le sandwich ajouté à la catégorie.
+     */
     @POST
     @Path("{id}/sandwichs")
     public Response addSandwichToCategorie(@PathParam("id") String catId, @Context UriInfo uriInfo, Sandwich sand) {
@@ -82,6 +117,13 @@ public class CategorieRessource {
         return Response.created(uri).entity(SandwichRessource.buildJson(s)).build();
     }
 
+    /**
+     * @api {post} /categories Créer une nouvelle catégorie
+     * @apiName newCategorie
+     * @apiGroup Categorie
+     *
+     * @apiSuccess {Categorie} categorie La catégorie nouvellement créée.
+     */
     @POST
     public Response newCategorie(@Valid Categorie c, @Context UriInfo uriInfo) {
         Categorie cat = this.cm.save(c);
@@ -90,6 +132,15 @@ public class CategorieRessource {
         return Response.created(uri).entity(this.buildJson(cat)).build();
     }
 
+    /**
+     * @api {delete} /categories/:id Supprimer une catégorie
+     * @apiName removeCategorie
+     * @apiGroup Categorie
+     *
+     * @apiParam {String} id ID unique d'une catégorie.
+     *
+     * @apiSuccess {Status} status Retourne le code 204 (No Content).
+     */
     @DELETE
     @Path("{id}")
     public Response removeCategorie(@PathParam("id") String id) {
@@ -97,9 +148,18 @@ public class CategorieRessource {
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
+    /**
+     * @api {put} /categories/:id Modifier une catégorie
+     * @apiName updateCategorie
+     * @apiGroup Categorie
+     *
+     * @apiParam {String} id ID unique d'une catégorie.
+     *
+     * @apiSuccess {Categorie} categorie La catégorie modifiée.
+     */
     @PUT
     @Path("{id}")
-    public Categorie update(@PathParam("id") String id, Categorie c) {
+    public Categorie updateCategorie(@PathParam("id") String id, Categorie c) {
         c.setId(id);
         return this.cm.save(c);
     }
