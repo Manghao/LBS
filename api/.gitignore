@@ -1,6 +1,2 @@
 .idea/
-target/classes/
-target/generated-sources/
-target/lbsjee/
-target/maven-archiver/
-target/maven-status/
+target/
