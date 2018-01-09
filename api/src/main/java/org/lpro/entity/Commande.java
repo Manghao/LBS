@@ -3,9 +3,7 @@ package org.lpro.entity;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
@@ -31,8 +29,8 @@ public class Commande implements Serializable {
 
     private String token;
 
-    @ManyToMany(mappedBy = "commande")
-    private Set<Utilisateur> utilisateur = new HashSet<Utilisateur>();
+    @ManyToOne
+    private Utilisateur utilisateur;
 
     @ManyToMany(mappedBy = "commande")
     private Set<Sandwich> sandwich = new HashSet<Sandwich>();
