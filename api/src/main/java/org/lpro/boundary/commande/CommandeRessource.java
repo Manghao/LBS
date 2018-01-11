@@ -117,7 +117,7 @@ public class CommandeRessource {
      * @apiParam {String} token token unique d'une commande passé en paramètre dans le header.
      * @apiParam {Sandwich} s sandwich à ajouter à la commande.
      *
-     * @apiSuccess {String} résultat String indiquant que le sandwich a bien été ajouté à la commande.
+     * @apiSuccess {String} res String indiquant que le sandwich a bien été ajouté à la commande.
      * @apiError CommandeNotFound L'<code>id</code> de la commande n'existe pas.
      * @apiError CommandeForbidden Le <code>token</code> de la commande n'existe pas ou n'est pas le bon.
      * @apiError SandwichNotFound Le <code>sandwich</code> à ajouter n'existe pas.

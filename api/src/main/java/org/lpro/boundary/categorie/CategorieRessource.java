@@ -93,16 +93,23 @@ public class CategorieRessource {
      * @apiParam {String} id ID unique d'une catégorie.
      *
      * @apiSuccess {Sandwich} sandwich Le sandwich ajouté à la catégorie.
+     * @apiError {Status} status Statut 404 NOT FOUND car la catégorie n'existe pas
      */
     @POST
     @Path("{id}/sandwichs")
     public Response addSandwichToCategorie(@PathParam("id") String catId, @Context UriInfo uriInfo, Sandwich sand) {
-        Sandwich s = this.sm.addSandwich(catId, sand);
-        URI uri = uriInfo.getAbsolutePathBuilder()
-                .path("/")
-                .path(s.getId())
-                .build();
-        return Response.created(uri).entity(SandwichRessource.buildJson(s)).build();
+        Categorie c = this.cm.findById(catId);
+
+        if (c != null) {
+            Sandwich s = this.sm.addSandwich(c, sand);
+            URI uri = uriInfo.getAbsolutePathBuilder()
+                    .path("/")
+                    .path(s.getId())
+                    .build();
+            return Response.created(uri).entity(SandwichRessource.buildJson(s)).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
 
     /**

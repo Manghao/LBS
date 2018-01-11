@@ -300,8 +300,8 @@ define({ "api": [
             "group": "Success 200",
             "type": "String",
             "optional": false,
-            "field": "r",
-            "description": "<p>ésultat String indiquant que le sandwich a bien été ajouté à la commande.</p>"
+            "field": "res",
+            "description": "<p>String indiquant que le sandwich a bien été ajouté à la commande.</p>"
           }
         ]
       }
