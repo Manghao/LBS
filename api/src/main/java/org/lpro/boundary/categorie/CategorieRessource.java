@@ -80,21 +80,9 @@ public class CategorieRessource {
     @GET
     @Path("{id}/sandwichs")
     public Response getCategorieSandwichs(@PathParam("id") String id, @Context UriInfo uriInfo) {
-        Categorie c = this.cm.findById(id);
-        Set<Sandwich> sandwichs = c.getSandwich();
-
-        JsonArrayBuilder jab = Json.createArrayBuilder();
-        sandwichs.forEach((s) -> {
-            jab.add(SandwichRessource.buildJson(s));
-        });
-
-        JsonObject json = Json.createObjectBuilder()
-                .add("type", "collection")
-                .add("meta", Json.createObjectBuilder().add("count", sandwichs.size()).build())
-                .add("sandwichs", jab.build())
-                .build();
-
-        return Response.ok(json).build();
+        return Optional.ofNullable(this.cm.findById(id))
+                .map(c -> Response.ok(this.buildSandwichObject(c)).build())
+                .orElseThrow(() -> new CategorieNotFound("Ressource non disponible" + uriInfo.getPath()));
     }
 
     /**
@@ -212,6 +200,21 @@ public class CategorieRessource {
         return Json.createObjectBuilder()
                 .add("type", "resource")
                 .add("categorie", this.buildJson(c))
+                .build();
+    }
+
+    private JsonObject buildSandwichObject(Categorie c) {
+        Set<Sandwich> sandwichs = c.getSandwich();
+
+        JsonArrayBuilder jab = Json.createArrayBuilder();
+        sandwichs.forEach((s) -> {
+            jab.add(SandwichRessource.buildJson(s));
+        });
+
+        return Json.createObjectBuilder()
+                .add("type", "collection")
+                .add("meta", Json.createObjectBuilder().add("count", sandwichs.size()).build())
+                .add("sandwichs", jab.build())
                 .build();
     }
 }

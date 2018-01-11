@@ -42,6 +42,7 @@ public class Sandwich implements Serializable {
 
     public Sandwich(String id, String nom, String pain, String description, String img) {
         this.id = id;
+        this.nom = nom;
         this.type_pain = pain;
         this.description = description;
         this.img = img;
@@ -49,6 +50,7 @@ public class Sandwich implements Serializable {
 
     public Sandwich(Sandwich s) {
         this.id = s.getId();
+        this.nom = s.getNom();
         this.type_pain = s.getTypePain();
         this.description = s.getDescription();
         this.img = s.getImg();
