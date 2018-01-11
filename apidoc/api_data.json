@@ -31,6 +31,19 @@
         ]
       }
     },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Status",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Statut 404 NOT FOUND car la catégorie n'existe pas</p>"
+          }
+        ]
+      }
+    },
     "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
     "groupTitle": "Categorie"
