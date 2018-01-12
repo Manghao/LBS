@@ -31,6 +31,19 @@
         ]
       }
     },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "type": "Status",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Statut 404 NOT FOUND car la catégorie n'existe pas</p>"
+          }
+        ]
+      }
+    },
     "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/categorie/CategorieRessource.java",
     "groupTitle": "Categorie"
@@ -252,6 +265,80 @@
             "optional": false,
             "field": "commande",
             "description": "<p>Une commande.</p>"
+          }
+        ]
+      }
+    },
+    "version": "1.0.0",
+    "filename": "api/src/main/java/org/lpro/boundary/commande/CommandeRessource.java",
+    "groupTitle": "Commande"
+  },
+  {
+    "type": "post",
+    "url": "/commandes/:id/sandwichs",
+    "title": "Ajouter un sandwich à une commande",
+    "name": "addSandwichToCommande",
+    "group": "Commande",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>ID unique d'une commande.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "token",
+            "description": "<p>token unique d'une commande passé en paramètre de l'url.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Sandwich",
+            "optional": false,
+            "field": "s",
+            "description": "<p>sandwich à ajouter à la commande.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "res",
+            "description": "<p>String indiquant que le sandwich a bien été ajouté à la commande.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "CommandeNotFound",
+            "description": "<p>L'<code>id</code> de la commande n'existe pas.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "CommandeForbidden",
+            "description": "<p>Le <code>token</code> de la commande n'existe pas ou n'est pas le bon.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "SandwichNotFound",
+            "description": "<p>Le <code>sandwich</code> à ajouter n'existe pas.</p>"
           }
         ]
       }

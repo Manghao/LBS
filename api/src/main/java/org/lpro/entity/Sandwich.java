@@ -1,9 +1,6 @@
 package org.lpro.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedQuery;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -38,10 +35,14 @@ public class Sandwich implements Serializable {
     @ManyToMany
     private Set<Taille> taille = new HashSet<Taille>();
 
+    @ManyToMany
+    private Set<Commande> commande = new HashSet<Commande>();
+
     public Sandwich() { }
 
     public Sandwich(String id, String nom, String pain, String description, String img) {
         this.id = id;
+        this.nom = nom;
         this.type_pain = pain;
         this.description = description;
         this.img = img;
@@ -49,6 +50,7 @@ public class Sandwich implements Serializable {
 
     public Sandwich(Sandwich s) {
         this.id = s.getId();
+        this.nom = s.getNom();
         this.type_pain = s.getTypePain();
         this.description = s.getDescription();
         this.img = s.getImg();

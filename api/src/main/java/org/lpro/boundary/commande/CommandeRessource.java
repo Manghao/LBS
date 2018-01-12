@@ -1,6 +1,8 @@
 package org.lpro.boundary.commande;
 
+import org.lpro.boundary.sandwich.SandwichRessource;
 import org.lpro.entity.Commande;
+import org.lpro.entity.Sandwich;
 
 import java.net.URI;
 import java.sql.Timestamp;
@@ -104,6 +106,57 @@ public class CommandeRessource {
                 .entity(newCommande)
                 .build();
     }
+
+    /**
+     * @api {post} /commandes/:id/sandwichs Ajouter un sandwich à une commande
+     * @apiName addSandwichToCommande
+     * @apiGroup Commande
+     *
+     * @apiParam {String} id ID unique d'une commande.
+     * @apiParam {String} token token unique d'une commande passé en paramètre de l'url.
+     * @apiParam {String} token token unique d'une commande passé en paramètre dans le header.
+     * @apiParam {Sandwich} s sandwich à ajouter à la commande.
+     *
+     * @apiSuccess {String} res String indiquant que le sandwich a bien été ajouté à la commande.
+     * @apiError CommandeNotFound L'<code>id</code> de la commande n'existe pas.
+     * @apiError CommandeForbidden Le <code>token</code> de la commande n'existe pas ou n'est pas le bon.
+     * @apiError SandwichNotFound Le <code>sandwich</code> à ajouter n'existe pas.
+     */
+    @POST
+    @Path("{id}/sandwichs")
+    public Response addSandwichToCommande(
+            @PathParam("id") String id,
+            @DefaultValue("") @QueryParam("token") String tokenParam,
+            @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
+            Sandwich s
+    ) {
+        Commande cmd = this.cm.findById(id);
+        if (cmd == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        if (tokenParam.isEmpty() && tokenHeader.isEmpty()) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        }
+
+        String token = (tokenParam.isEmpty()) ? tokenHeader : tokenParam;
+
+        if (!cmd.getToken().equals(token)) {
+            return Response.status(Response.Status.FORBIDDEN).build();
+        } else {
+            Sandwich sand = this.cm.addSandwich(id, s);
+
+            if (sand != null) {
+                return Response.ok(
+                        Json.createObjectBuilder()
+                                .add("résultat", "Sandwich " + sand.getNom() + " bien ajouté à la commande")
+                                .build()
+                ).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        }
+    }
+
 
     /**
      * @api {put} /commandes/:id Modifier la date et l'heure de livraison d'une commande
