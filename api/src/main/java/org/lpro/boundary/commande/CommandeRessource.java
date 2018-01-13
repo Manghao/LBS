@@ -143,7 +143,7 @@ public class CommandeRessource {
         if (!cmd.getToken().equals(token)) {
             return Response.status(Response.Status.FORBIDDEN).build();
         } else {
-            Sandwich sand = this.cm.addSandwich(id, s);
+            Sandwich sand = this.cm.addSandwich(cmd, s);
 
             if (sand != null) {
                 return Response.ok(
@@ -209,8 +209,8 @@ public class CommandeRessource {
     private JsonObject buildJsonForCommande(Commande c) {
         return Json.createObjectBuilder()
                 .add("id", c.getId())
-                .add("nom_client", c.getNom())
-                .add("mail_client", c.getMail())
+                .add("nom_client", c.getUtilisateur().getNom())
+                .add("mail_client", c.getUtilisateur().getMail())
                 .add("livraison", buildJsonForLivraison(c))
                 .add("token", c.getToken())
                 .build();
