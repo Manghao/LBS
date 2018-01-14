@@ -56,4 +56,8 @@ public class CommandeManager {
             return null;
         }
     }
+
+    public boolean deleteSandwich(Commande cmd, Sandwich sand) {
+        return cmd.getSandwich().remove(sand);
+    }
 }
