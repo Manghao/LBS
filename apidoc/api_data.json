@@ -269,6 +269,18 @@
         ]
       }
     },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "BadRequest",
+            "description": "<p>L'heure de la commande est inférieure à la date courante.</p>"
+          }
+        ]
+      }
+    },
     "version": "1.0.0",
     "filename": "api/src/main/java/org/lpro/boundary/commande/CommandeRessource.java",
     "groupTitle": "Commande"
@@ -339,6 +351,80 @@
             "optional": false,
             "field": "SandwichNotFound",
             "description": "<p>Le <code>sandwich</code> à ajouter n'existe pas.</p>"
+          }
+        ]
+      }
+    },
+    "version": "1.0.0",
+    "filename": "api/src/main/java/org/lpro/boundary/commande/CommandeRessource.java",
+    "groupTitle": "Commande"
+  },
+  {
+    "type": "delete",
+    "url": "/commandes/:id/sandwichs/:id",
+    "title": "Supprimer un sandwich d'une commande",
+    "name": "deleteSandwichToCommande",
+    "group": "Commande",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "catId",
+            "description": "<p>ID unique d'une commande.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "sandId",
+            "description": "<p>ID unique d'un sandwich.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "token",
+            "description": "<p>token unique d'une commande passé en paramètre de l'url.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "res",
+            "description": "<p>String indiquant que le sandwich a bien été supprimé de la commande.</p>"
+          }
+        ]
+      }
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "CommandeNotFound",
+            "description": "<p>L'<code>id</code> de la commande n'existe pas.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "CommandeForbidden",
+            "description": "<p>Le <code>token</code> de la commande n'existe pas ou n'est pas le bon.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "SandwichNotFound",
+            "description": "<p>Le <code>sandwich</code> à supprimer n'existe pas.</p>"
           }
         ]
       }
