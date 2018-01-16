@@ -63,7 +63,7 @@ public class SandwichManager {
         return query.getResultList();
     }
 
-    public Sandwich addSandwich(String catId, Sandwich sand) {
+    public Sandwich addSandwich(Categorie cat, Sandwich sand) {
         Sandwich s;
         TypedQuery<Sandwich> query = em.createQuery("SELECT s FROM Sandwich s WHERE s.nom = :n", Sandwich.class);
         query.setParameter("n", sand.getNom());
@@ -74,7 +74,6 @@ public class SandwichManager {
             s.setId(UUID.randomUUID().toString());
             this.em.persist(s);
         }
-        Categorie cat = this.em.find(Categorie.class, catId);
         cat.getSandwich().add(s);
         this.em.persist(cat);
         return s;

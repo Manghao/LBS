@@ -1,13 +1,12 @@
 package org.lpro.boundary.commande;
 
 import org.lpro.control.RandomToken;
+import org.lpro.entity.Categorie;
 import org.lpro.entity.Commande;
+import org.lpro.entity.Sandwich;
 
 import javax.ejb.Stateless;
-import javax.persistence.CacheStoreMode;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import javax.persistence.*;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.Response;
 import java.text.ParseException;
@@ -41,5 +40,24 @@ public class CommandeManager {
         c.setId(UUID.randomUUID().toString());
 
         return this.em.merge(c);
+    }
+
+    public Sandwich addSandwich(Commande cmd, Sandwich sand) {
+        Sandwich s;
+        TypedQuery<Sandwich> query = this.em.createQuery("SELECT s FROM Sandwich s WHERE s.id = :id", Sandwich.class);
+        query.setParameter("id", sand.getId());
+        try {
+            s = query.getSingleResult();
+            cmd.getSandwich().add(s);
+            this.em.persist(cmd);
+
+            return s;
+        } catch (NoResultException e) {
+            return null;
+        }
+    }
+
+    public boolean deleteSandwich(Commande cmd, Sandwich sand) {
+        return cmd.getSandwich().remove(sand);
     }
 }

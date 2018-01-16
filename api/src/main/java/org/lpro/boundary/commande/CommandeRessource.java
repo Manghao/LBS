@@ -1,6 +1,8 @@
 package org.lpro.boundary.commande;
 
+import org.lpro.boundary.sandwich.SandwichManager;
 import org.lpro.entity.Commande;
+import org.lpro.entity.Sandwich;
 
 import java.net.URI;
 import java.sql.Timestamp;
@@ -30,6 +32,9 @@ public class CommandeRessource {
     @Inject
     CommandeManager cm;
 
+    @Inject
+    SandwichManager sm;
+
     @Context
     UriInfo uriInfo;
 
@@ -49,23 +54,35 @@ public class CommandeRessource {
     @GET
     @Path("{id}")
     public Response getOneCommande(
-        @PathParam("id") String id,
-        @DefaultValue("") @QueryParam("token") String tokenParam,
-        @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader
+            @PathParam("id") String id,
+            @DefaultValue("") @QueryParam("token") String tokenParam,
+            @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader
     ) {
         Commande cmd = this.cm.findById(id);
         if (cmd == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "La commande n'existe pas")
+                            .build()
+            ).build();
         }
 
         if (tokenParam.isEmpty() && tokenHeader.isEmpty()) {
-            return Response.status(Response.Status.FORBIDDEN).build();
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'existe pas")
+                            .build()
+            ).build();
         }
 
         String token = (tokenParam.isEmpty()) ? tokenHeader : tokenParam;
 
         if (!cmd.getToken().equals(token)) {
-            return Response.status(Response.Status.FORBIDDEN).build();
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'est pas le bon")
+                            .build()
+            ).build();
         } else {
             return Response.ok(this.buildCommandeObject(cmd)).build();
         }
@@ -77,6 +94,7 @@ public class CommandeRessource {
      * @apiGroup Commande
      *
      * @apiSuccess {Commande} commande Une commande.
+     * @apiError BadRequest L'heure de la commande est inférieure à la date courante.
      */
     @POST
     public Response addCommande(@Valid Commande commande) {
@@ -94,7 +112,11 @@ public class CommandeRessource {
             Timestamp timestampCommande = new Timestamp(dateCommande.getTime());
 
             if (timestampCommande.before(currentTimestamp)) {
-                return Response.status(Response.Status.BAD_REQUEST).build();
+                return Response.status(Response.Status.BAD_REQUEST).entity(
+                        Json.createObjectBuilder()
+                                .add("error", "La date de la commande est inférieure à la date courante")
+                                .build()
+                ).build();
             }
         } catch (ParseException pe) { }
 
@@ -103,6 +125,146 @@ public class CommandeRessource {
         return Response.created(uri)
                 .entity(newCommande)
                 .build();
+    }
+
+    /**
+     * @api {post} /commandes/:id/sandwichs Ajouter un sandwich à une commande
+     * @apiName addSandwichToCommande
+     * @apiGroup Commande
+     *
+     * @apiParam {String} id ID unique d'une commande.
+     * @apiParam {String} token token unique d'une commande passé en paramètre de l'url.
+     * @apiParam {String} token token unique d'une commande passé en paramètre dans le header.
+     * @apiParam {Sandwich} s sandwich à ajouter à la commande.
+     *
+     * @apiSuccess {String} res String indiquant que le sandwich a bien été ajouté à la commande.
+     * @apiError CommandeNotFound L'<code>id</code> de la commande n'existe pas.
+     * @apiError CommandeForbidden Le <code>token</code> de la commande n'existe pas ou n'est pas le bon.
+     * @apiError SandwichNotFound Le <code>sandwich</code> à ajouter n'existe pas.
+     */
+    @POST
+    @Path("{id}/sandwichs")
+    public Response addSandwichToCommande(
+            @PathParam("id") String id,
+            @DefaultValue("") @QueryParam("token") String tokenParam,
+            @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
+            Sandwich s
+    ) {
+        Commande cmd = this.cm.findById(id);
+        if (cmd == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "La commande n'existe pas")
+                            .build()
+            ).build();
+        }
+        if (tokenParam.isEmpty() && tokenHeader.isEmpty()) {
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'existe pas")
+                            .build()
+            ).build();
+        }
+
+        String token = (tokenParam.isEmpty()) ? tokenHeader : tokenParam;
+
+        if (!cmd.getToken().equals(token)) {
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'est pas le bon")
+                            .build()
+            ).build();
+        } else {
+            Sandwich sand = this.cm.addSandwich(cmd, s);
+
+            if (sand != null) {
+                return Response.ok(
+                        Json.createObjectBuilder()
+                                .add("success", "Le sandwich " + sand.getNom() + " a bien été ajouté à la commande")
+                                .build()
+                ).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+        }
+    }
+
+    /**
+     * @api {delete} /commandes/:id/sandwichs/:id Supprimer un sandwich d'une commande
+     * @apiName deleteSandwichToCommande
+     * @apiGroup Commande
+     *
+     * @apiParam {String} catId ID unique d'une commande.
+     * @apiParam {String} sandId ID unique d'un sandwich.
+     * @apiParam {String} token token unique d'une commande passé en paramètre de l'url.
+     * @apiParam {String} token token unique d'une commande passé en paramètre dans le header.
+     *
+     * @apiSuccess {String} res String indiquant que le sandwich a bien été supprimé de la commande.
+     * @apiError CommandeNotFound L'<code>id</code> de la commande n'existe pas.
+     * @apiError CommandeForbidden Le <code>token</code> de la commande n'existe pas ou n'est pas le bon.
+     * @apiError SandwichNotFound Le <code>sandwich</code> à supprimer n'existe pas.
+     * @apiError SandwichNotFound Le <code>sandwich</code> à supprimer n'existe pas dans la commande.
+     */
+    @DELETE
+    @Path("{catId}/sandwichs/{sandId}")
+    public Response deleteSandwichToCommande(
+            @PathParam("catId") String catId,
+            @PathParam("sandId") String sandId,
+            @DefaultValue("") @QueryParam("token") String tokenParam,
+            @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader
+    ) {
+        Commande cmd = this.cm.findById(catId);
+        if (cmd == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "La commande n'existe pas")
+                            .build()
+            ).build();
+        }
+        if (tokenParam.isEmpty() && tokenHeader.isEmpty()) {
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'existe pas")
+                            .build()
+            ).build();
+        }
+
+        String token = (tokenParam.isEmpty()) ? tokenHeader : tokenParam;
+
+        if (!cmd.getToken().equals(token)) {
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'est pas le bon")
+                            .build()
+            ).build();
+        } else {
+            Sandwich sand = this.sm.findById(sandId);
+
+            if (sand != null) {
+                boolean res = this.cm.deleteSandwich(cmd, sand);
+
+                if (res) {
+                    return Response.ok(
+                            Json.createObjectBuilder()
+                                    .add("success", "Le sandwich " + sand.getNom() + " a bien été supprimé de la commande")
+                                    .build()
+                    ).build();
+                } else {
+                    return Response.status(Response.Status.NOT_FOUND)
+                            .entity(
+                                    Json.createObjectBuilder()
+                                            .add("error", "Le sandwich " + sand.getNom() + " n'existe pas dans la commande")
+                                            .build()
+                            ).build();
+                }
+            } else {
+                return Response.status(Response.Status.NOT_FOUND).entity(
+                        Json.createObjectBuilder()
+                                .add("error", "Le sandwich n'existe pas")
+                                .build()
+                ).build();
+            }
+        }
     }
 
     /**
@@ -129,16 +291,28 @@ public class CommandeRessource {
     ) {
         Commande cmd = this.cm.findById(id);
         if (cmd == null) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "La commande n'existe pas")
+                            .build()
+            ).build();
         }
         if (tokenParam.isEmpty() && tokenHeader.isEmpty()) {
-            return Response.status(Response.Status.FORBIDDEN).build();
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'existe pas")
+                            .build()
+            ).build();
         }
 
         String token = (tokenParam.isEmpty()) ? tokenHeader : tokenParam;
 
         if (!cmd.getToken().equals(token)) {
-            return Response.status(Response.Status.FORBIDDEN).build();
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'est pas le bon")
+                            .build()
+            ).build();
         } else {
             cmd.setDateLivraison(c.getDateLivraison());
             cmd.setHeureLivraison(c.getHeureLivraison());
@@ -156,8 +330,8 @@ public class CommandeRessource {
     private JsonObject buildJsonForCommande(Commande c) {
         return Json.createObjectBuilder()
                 .add("id", c.getId())
-                .add("nom_client", c.getNom())
-                .add("mail_client", c.getMail())
+                .add("nom_client", c.getUtilisateur().getNom())
+                .add("mail_client", c.getUtilisateur().getMail())
                 .add("livraison", buildJsonForLivraison(c))
                 .add("token", c.getToken())
                 .build();
