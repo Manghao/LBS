@@ -38,7 +38,7 @@ public class CommandeManager {
     public SandwichChoix addSandwichChoix(Commande cmd, SandwichChoix sc) {
         Sandwich s;
         TypedQuery<Sandwich> query = this.em.createQuery("SELECT s FROM Sandwich s WHERE s.id = :id", Sandwich.class);
-        query.setParameter("id", sc.getSandwich().getId());
+        query.setParameter("id", sc.getSandwich());
         try {
             s = query.getSingleResult();
         } catch (NoResultException e) {
@@ -47,16 +47,16 @@ public class CommandeManager {
 
         Taille t;
         TypedQuery<Taille> qTaille = this.em.createQuery("SELECT t FROM Taille t WHERE t.id = :id", Taille.class);
-        qTaille.setParameter("id", sc.getTaille().getId());
+        qTaille.setParameter("id", sc.getTaille());
         try {
             t = qTaille.getSingleResult();
 
-            sc = new SandwichChoix(s, t);
+            sc = new SandwichChoix(s.getId(), t.getId());
             sc.setId(UUID.randomUUID().toString());
             this.em.merge(sc);
 
-            cmd.getSandwichChoix().add(sc);
-            this.em.persist(cmd);
+            // cmd.getSandwichChoix().add(sc);
+            // this.em.persist(cmd);
 
             return sc;
         } catch (NoResultException e) {

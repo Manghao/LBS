@@ -20,35 +20,16 @@ public class SandwichChoix implements Serializable {
     private String id;
 
     @NotNull
-    private Sandwich sandwich;
-
-    @NotNull
-    private Taille taille;
+    private String sandwich, taille;
 
     @ManyToMany
     private Set<Commande> commande = new HashSet<Commande>();
 
     public SandwichChoix() { }
 
-    public SandwichChoix(Sandwich s, Taille t) {
+    public SandwichChoix(String s, String t) {
         this.sandwich = s;
         this.taille = t;
-    }
-
-    public Sandwich getSandwich() {
-        return sandwich;
-    }
-
-    public void setSandwich(Sandwich sandwich) {
-        this.sandwich = sandwich;
-    }
-
-    public Taille getTaille() {
-        return taille;
-    }
-
-    public void setTaille(Taille taille) {
-        this.taille = taille;
     }
 
     public String getId() {
@@ -57,5 +38,21 @@ public class SandwichChoix implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getSandwich() {
+        return sandwich;
+    }
+
+    public void setSandwich(String sandwich) {
+        this.sandwich = sandwich;
+    }
+
+    public String getTaille() {
+        return taille;
+    }
+
+    public void setTaille(String taille) {
+        this.taille = taille;
     }
 }

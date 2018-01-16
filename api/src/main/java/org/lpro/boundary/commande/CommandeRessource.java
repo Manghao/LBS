@@ -196,7 +196,7 @@ public class CommandeRessource {
             if (sc != null) {
                 return Response.ok(
                         Json.createObjectBuilder()
-                                .add("success", "Le sandwich " + sc.getSandwich().getNom() + " a bien été ajouté à la commande")
+                                .add("success", "Le sandwich " + sc.getSandwich() + " a bien été ajouté à la commande")
                                 .build()
                 ).build();
             } else {
@@ -355,10 +355,11 @@ public class CommandeRessource {
     }
 
     private JsonObject buildSandwichsCommande(SandwichChoix st) {
+        // TODO: Affichage du sandwich
         return Json.createObjectBuilder()
-                .add("nom", st.getSandwich().getNom())
-                .add("taille", st.getTaille().getNom())
-                .add("prix", st.getTaille().getPrix())
+                .add("nom", st.getSandwich())
+                .add("taille", st.getTaille())
+                .add("prix", 0)
                 .build();
     }
 
