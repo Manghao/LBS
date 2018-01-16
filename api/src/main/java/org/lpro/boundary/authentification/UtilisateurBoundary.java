@@ -62,6 +62,7 @@ public class UtilisateurBoundary {
     private void authentifie(String mail, String password, Utilisateur utilisateur) throws Exception {
         if (utilisateur != null) {
             if (mail.equals(utilisateur.getMail()) && BCrypt.checkpw(password, utilisateur.getPassword())) {
+
             } else {
                 throw new NotAuthorizedException("Problème d'authentification");
             }
