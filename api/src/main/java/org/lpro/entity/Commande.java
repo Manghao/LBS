@@ -29,9 +29,6 @@ public class Commande implements Serializable {
 
     private String token;
 
-    @ManyToOne
-    private Utilisateur utilisateur;
-
     public Commande() {  }
 
     public Commande(String nom, String prenom, String mail, String dateLivraison, String heureLivraison) {
