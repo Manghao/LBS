@@ -51,4 +51,11 @@ public class SandwichChoix implements Serializable {
         this.taille = taille;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }
