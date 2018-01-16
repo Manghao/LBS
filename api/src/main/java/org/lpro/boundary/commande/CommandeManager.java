@@ -50,11 +50,12 @@ public class CommandeManager {
         qTaille.setParameter("id", sc.getTaille().getId());
         try {
             t = qTaille.getSingleResult();
+
             sc = new SandwichChoix(s, t);
             sc.setId(UUID.randomUUID().toString());
-            cmd.getSandwichChoix().add(sc);
-
             this.em.merge(sc);
+
+            cmd.getSandwichChoix().add(sc);
             this.em.persist(cmd);
 
             return sc;
