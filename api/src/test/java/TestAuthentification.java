@@ -13,7 +13,7 @@ import javax.ws.rs.core.Response;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-public class TestAPI {
+public class TestAuthentification {
 
     private Client client;
     private WebTarget target;
