@@ -53,10 +53,11 @@ public class CommandeManager {
 
             sc = new SandwichChoix(s.getId(), t.getId());
             sc.setId(UUID.randomUUID().toString());
+            sc.getCommande().add(cmd);
             this.em.merge(sc);
 
-            // cmd.getSandwichChoix().add(sc);
-            // this.em.persist(cmd);
+            cmd.getSandwichChoix().add(sc);
+            this.em.persist(cmd);
 
             return sc;
         } catch (NoResultException e) {

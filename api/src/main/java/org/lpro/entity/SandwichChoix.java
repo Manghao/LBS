@@ -55,4 +55,12 @@ public class SandwichChoix implements Serializable {
     public void setTaille(String taille) {
         this.taille = taille;
     }
+
+    public Set<Commande> getCommande() {
+        return commande;
+    }
+
+    public void setCommande(Set<Commande> commande) {
+        this.commande = commande;
+    }
 }
