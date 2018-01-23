@@ -1,8 +1,9 @@
 package org.lpro.boundary.commande;
 
+import org.lpro.boundary.authentification.UtilisateurManager;
 import org.lpro.boundary.sandwich.SandwichManager;
-import org.lpro.entity.Commande;
-import org.lpro.entity.Sandwich;
+import org.lpro.entity.*;
+import org.lpro.provider.Secured;
 
 import java.net.URI;
 import java.sql.Timestamp;
@@ -31,6 +32,9 @@ public class CommandeRessource {
 
     @Inject
     CommandeManager cm;
+
+    @Inject
+    UtilisateurManager um;
 
     @Inject
     SandwichManager sm;
@@ -97,8 +101,19 @@ public class CommandeRessource {
      * @apiError BadRequest L'heure de la commande est inférieure à la date courante.
      */
     @POST
+    @Secured
     public Response addCommande(@Valid Commande commande) {
         try {
+
+            Utilisateur utilisateur = this.um.findById(commande.getUtilisateur().getId());
+            if (utilisateur == null) {
+                return Response.status(Response.Status.BAD_REQUEST).entity(
+                        Json.createObjectBuilder()
+                                .add("error", "Utilisateur introuvable")
+                                .build()
+                ).build();
+            }
+
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
             sdf.setTimeZone(TimeZone.getDefault());
 
@@ -143,12 +158,13 @@ public class CommandeRessource {
      * @apiError SandwichNotFound Le <code>sandwich</code> à ajouter n'existe pas.
      */
     @POST
+    @Secured
     @Path("{id}/sandwichs")
     public Response addSandwichToCommande(
             @PathParam("id") String id,
             @DefaultValue("") @QueryParam("token") String tokenParam,
             @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
-            Sandwich s
+            SandwichChoix sc
     ) {
         Commande cmd = this.cm.findById(id);
         if (cmd == null) {
@@ -175,12 +191,12 @@ public class CommandeRessource {
                             .build()
             ).build();
         } else {
-            Sandwich sand = this.cm.addSandwich(cmd, s);
+            sc = this.cm.addSandwichChoix(cmd, sc);
 
-            if (sand != null) {
+            if (sc != null) {
                 return Response.ok(
                         Json.createObjectBuilder()
-                                .add("success", "Le sandwich " + sand.getNom() + " a bien été ajouté à la commande")
+                                .add("success", "Le sandwich " + sc.getSandwich() + " a bien été ajouté à la commande")
                                 .build()
                 ).build();
             } else {
@@ -206,6 +222,7 @@ public class CommandeRessource {
      * @apiError SandwichNotFound Le <code>sandwich</code> à supprimer n'existe pas dans la commande.
      */
     @DELETE
+    @Secured
     @Path("{catId}/sandwichs/{sandId}")
     public Response deleteSandwichToCommande(
             @PathParam("catId") String catId,
@@ -282,6 +299,7 @@ public class CommandeRessource {
      * @apiError CommandeForbidden Le <code>token</code> de la commande n'existe pas ou n'est pas le bon.
      */
     @PUT
+    @Secured
     @Path("{id}")
     public Response updateCommande(
             @PathParam("id") String id,
@@ -327,13 +345,32 @@ public class CommandeRessource {
                 .build();
     }
 
+    private JsonObject buildUtilisateur(Utilisateur u) {
+        return Json.createObjectBuilder()
+                .add("id", u.getId())
+                .add("nom", u.getNom())
+                .add("prenom", u.getPrenom())
+                .add("mail", u.getMail())
+                .build();
+    }
+
+    private JsonObject buildSandwichsCommande(SandwichChoix st) {
+        // TODO: Affichage du sandwich
+        return Json.createObjectBuilder()
+                .add("nom", st.getSandwich())
+                .add("taille", st.getTaille())
+                .add("prix", 0)
+                .build();
+    }
+
     private JsonObject buildJsonForCommande(Commande c) {
         return Json.createObjectBuilder()
                 .add("id", c.getId())
-                .add("nom_client", c.getUtilisateur().getNom())
-                .add("mail_client", c.getUtilisateur().getMail())
                 .add("livraison", buildJsonForLivraison(c))
                 .add("token", c.getToken())
+                .add("statut", c.getStatut().toString())
+                .add("utilisateur", this.buildUtilisateur(c.getUtilisateur()))
+                // .add("sandwichs", this.buildSandwichsCommande(c.getSandwichTaille()))
                 .build();
     }
 

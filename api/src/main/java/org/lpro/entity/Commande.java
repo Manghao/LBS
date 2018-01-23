@@ -1,11 +1,12 @@
 package org.lpro.entity;
 
+import org.lpro.enums.CommandeStatut;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 
 @Entity
 public class Commande implements Serializable {
@@ -21,13 +22,16 @@ public class Commande implements Serializable {
 
     private String token;
 
+    @Enumerated(EnumType.STRING)
+    private CommandeStatut statut;
+
     @ManyToOne
     private Utilisateur utilisateur;
 
     @ManyToMany(mappedBy = "commande")
-    private Set<Sandwich> sandwich = new HashSet<Sandwich>();
+    private Set<SandwichChoix> sandwichChoix = new HashSet<SandwichChoix>();
 
-    public Commande() {  }
+    public Commande() { }
 
     public Commande(Utilisateur utilisateur, String dateLivraison, String heureLivraison) {
         this.utilisateur = utilisateur;
@@ -75,12 +79,19 @@ public class Commande implements Serializable {
         this.utilisateur = utilisateur;
     }
 
-    public Set<Sandwich> getSandwich() {
-        return sandwich;
+    public CommandeStatut getStatut() {
+        return statut;
     }
 
-    public void setSandwich(Set<Sandwich> sandwich) {
-        this.sandwich = sandwich;
+    public void setStatut(CommandeStatut statut) {
+        this.statut = statut;
     }
 
+    public Set<SandwichChoix> getSandwichChoix() {
+        return sandwichChoix;
+    }
+
+    public void setSandwichChoix(Set<SandwichChoix> sandwichChoix) {
+        this.sandwichChoix = sandwichChoix;
+    }
 }

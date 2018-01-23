@@ -1,21 +1,13 @@
 package org.lpro.boundary.commande;
 
 import org.lpro.control.RandomToken;
-import org.lpro.entity.Categorie;
-import org.lpro.entity.Commande;
-import org.lpro.entity.Sandwich;
+import org.lpro.entity.*;
+import org.lpro.enums.CommandeStatut;
 
 import javax.ejb.Stateless;
 import javax.persistence.*;
 import javax.transaction.Transactional;
-import javax.ws.rs.core.Response;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.UUID;
 
 @Stateless
@@ -36,28 +28,44 @@ public class CommandeManager {
     }
 
     public Commande save(Commande c) {
+        c.setStatut(CommandeStatut.ATTENTE);
         c.setToken(new RandomToken().randomString(64));
         c.setId(UUID.randomUUID().toString());
 
         return this.em.merge(c);
     }
 
-    public Sandwich addSandwich(Commande cmd, Sandwich sand) {
+    public SandwichChoix addSandwichChoix(Commande cmd, SandwichChoix sc) {
         Sandwich s;
         TypedQuery<Sandwich> query = this.em.createQuery("SELECT s FROM Sandwich s WHERE s.id = :id", Sandwich.class);
-        query.setParameter("id", sand.getId());
+        query.setParameter("id", sc.getSandwich());
         try {
             s = query.getSingleResult();
-            cmd.getSandwich().add(s);
-            this.em.persist(cmd);
+        } catch (NoResultException e) {
+            return null;
+        }
 
-            return s;
+        Taille t;
+        TypedQuery<Taille> qTaille = this.em.createQuery("SELECT t FROM Taille t WHERE t.id = :id", Taille.class);
+        qTaille.setParameter("id", sc.getTaille());
+        try {
+            t = qTaille.getSingleResult();
+
+            sc = new SandwichChoix(s.getId(), t.getId());
+            sc.setId(UUID.randomUUID().toString());
+            this.em.merge(sc);
+
+            // cmd.getSandwichChoix().add(sc);
+            // this.em.persist(cmd);
+
+            return sc;
         } catch (NoResultException e) {
             return null;
         }
     }
 
     public boolean deleteSandwich(Commande cmd, Sandwich sand) {
-        return cmd.getSandwich().remove(sand);
+        // return cmd.getSandwich().remove(sand);
+        return false;
     }
 }

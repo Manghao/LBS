@@ -13,6 +13,10 @@ public class UtilisateurManager {
     @PersistenceContext
     EntityManager em;
 
+    public Utilisateur findById(String id) {
+        return this.em.find(Utilisateur.class, id);
+    }
+
     public Utilisateur findUtilisateur(String mail) {
         Utilisateur u = null;
 

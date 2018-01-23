@@ -35,9 +35,6 @@ public class Sandwich implements Serializable {
     @ManyToMany
     private Set<Taille> taille = new HashSet<Taille>();
 
-    @ManyToMany
-    private Set<Commande> commande = new HashSet<Commande>();
-
     public Sandwich() { }
 
     public Sandwich(String id, String nom, String pain, String description, String img) {
