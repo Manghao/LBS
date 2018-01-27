@@ -52,7 +52,18 @@ public class TestCategorie {
         String location2 = categorieResponse.getHeaderString("Location");
         assertThat(categorieResponse.getStatus(), is(201));
 
-        // GET ONE
+        // PUT
+        categorieJson = categorie
+                .add("nom", "test")
+                .add("description","une categorie test modifie")
+                .build();
+        categorieResponse = this.client
+                .target(location)
+                .request(MediaType.APPLICATION_JSON)
+                .put(Entity.json(categorieJson));
+        assertThat(categorieResponse.getStatus(), is(200));
+
+        // GET
         JsonObject jsonRecupere = this.client
                 .target(location)
                 .request(MediaType.APPLICATION_JSON)
@@ -60,7 +71,7 @@ public class TestCategorie {
 
         assertTrue(jsonRecupere.getJsonObject("categorie").getJsonObject("categorie").containsKey("id"));
         assertTrue(jsonRecupere.getJsonObject("categorie").getJsonObject("categorie").containsKey("nom"));
-        assertTrue(jsonRecupere.getJsonObject("categorie").getJsonObject("categorie").getString("description").contains("categorie test"));
+        assertTrue(jsonRecupere.getJsonObject("categorie").getJsonObject("categorie").getString("description").contains("categorie test modifie"));
         
         // DELETE
         Response deleteResponse = this.client
