@@ -1,4 +1,4 @@
-package config;
+package org.lpro.config;
 
 public class Config {
 
