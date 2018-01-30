@@ -18,13 +18,10 @@ public class Sandwich implements Serializable {
     @Id
     private String id;
 
-    @NotNull
     private String nom;
 
-    @NotNull
     private String type_pain;
 
-    @NotNull
     private String description;
 
     private String img;

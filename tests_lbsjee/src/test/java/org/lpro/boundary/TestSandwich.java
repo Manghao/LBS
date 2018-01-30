@@ -60,6 +60,7 @@ public class TestSandwich {
                 .add("nom", "test")
                 .add("description","un sandwich test modifie")
                 .build();
+
         sandwichResponse = this.client
                 .target(location)
                 .request(MediaType.APPLICATION_JSON)
