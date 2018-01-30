@@ -1,7 +1,9 @@
 package org.lpro.boundary.commande;
 
 import org.lpro.boundary.authentification.UtilisateurManager;
+import org.lpro.boundary.categorie.CategorieRessource;
 import org.lpro.boundary.sandwich.SandwichManager;
+import org.lpro.boundary.taille.TailleManager;
 import org.lpro.entity.*;
 import org.lpro.provider.Secured;
 
@@ -12,11 +14,12 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TimeZone;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonObject;
+import javax.json.*;
 import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -38,6 +41,9 @@ public class CommandeRessource {
 
     @Inject
     SandwichManager sm;
+
+    @Inject
+    TailleManager tm;
 
     @Context
     UriInfo uriInfo;
@@ -138,7 +144,7 @@ public class CommandeRessource {
         Commande newCommande = this.cm.save(commande);
         URI uri = uriInfo.getAbsolutePathBuilder().path(newCommande.getId()).build();
         return Response.created(uri)
-                .entity(newCommande)
+                .entity(buildCommandeObject(newCommande))
                 .build();
     }
 
@@ -191,16 +197,24 @@ public class CommandeRessource {
                             .build()
             ).build();
         } else {
-            sc = this.cm.addSandwichChoix(cmd, sc);
+            if (sc.getQte() > 0) {
+                sc = this.cm.addSandwichChoix(cmd, sc);
 
-            if (sc != null) {
-                return Response.ok(
+                if (sc != null) {
+                    return Response.ok(buildCommandeObject(cmd)).build();
+                } else {
+                    return Response.status(Response.Status.NOT_FOUND).entity(
+                            Json.createObjectBuilder()
+                                    .add("error", "Le sandwich ou la taille est introuvable")
+                                    .build()
+                    ).build();
+                }
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).entity(
                         Json.createObjectBuilder()
-                                .add("success", "Le sandwich " + sc.getSandwich() + " a bien été ajouté à la commande")
+                                .add("error", "Quantité invalide")
                                 .build()
                 ).build();
-            } else {
-                return Response.status(Response.Status.NOT_FOUND).build();
             }
         }
     }
@@ -354,13 +368,27 @@ public class CommandeRessource {
                 .build();
     }
 
-    private JsonObject buildSandwichsCommande(SandwichChoix st) {
+    private JsonArray buildSandwichsCommande(Set<SandwichChoix> setSC) {
         // TODO: Affichage du sandwich
-        return Json.createObjectBuilder()
-                .add("nom", st.getSandwich())
-                .add("taille", st.getTaille())
-                .add("prix", 0)
-                .build();
+        JsonArrayBuilder jab = Json.createArrayBuilder();
+        double total = setSC.stream().mapToDouble(sc -> (this.tm.findById(sc.getTaille()).getPrix() * sc.getQte())).sum();
+        setSC.forEach((sc) -> {
+            Sandwich s = this.sm.findById(sc.getSandwich());
+            Taille t = this.tm.findById(sc.getTaille());
+
+            jab.add(Json.createObjectBuilder()
+                    .add("nom", s.getNom())
+                    .add("taille", t.getNom())
+                    .add("quantité", sc.getQte())
+                    .add("prix", t.getPrix() * sc.getQte())
+                    .add("sandwich", Json.createObjectBuilder().add("href", "/sandwichs/" + s.getId()))
+                    .build()
+            );
+        });
+
+        jab.add(Json.createObjectBuilder().add("total", total));
+
+        return jab.build();
     }
 
     private JsonObject buildJsonForCommande(Commande c) {
@@ -370,7 +398,7 @@ public class CommandeRessource {
                 .add("token", c.getToken())
                 .add("statut", c.getStatut().toString())
                 .add("utilisateur", this.buildUtilisateur(c.getUtilisateur()))
-                // .add("sandwichs", this.buildSandwichsCommande(c.getSandwichTaille()))
+                .add("sandwichs", this.buildSandwichsCommande(c.getSandwichChoix()))
                 .build();
     }
 
@@ -378,6 +406,7 @@ public class CommandeRessource {
         return Json.createObjectBuilder()
                 .add("date", c.getDateLivraison())
                 .add("heure", c.getHeureLivraison())
+                //.add("adresse", c.getAdresseLivraison())
                 .build();
     }
 }
