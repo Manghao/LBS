@@ -25,7 +25,7 @@ public class SandwichChoix implements Serializable {
 
     private int qte;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "sandwichChoix")
     private Set<Commande> commande = new HashSet<Commande>();
 
     public SandwichChoix() { }

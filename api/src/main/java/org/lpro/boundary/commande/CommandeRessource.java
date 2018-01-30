@@ -2,6 +2,7 @@ package org.lpro.boundary.commande;
 
 import org.lpro.boundary.authentification.UtilisateurManager;
 import org.lpro.boundary.sandwich.SandwichManager;
+import org.lpro.boundary.sandwichChoix.SandwichChoixManager;
 import org.lpro.boundary.taille.TailleManager;
 import org.lpro.entity.*;
 import org.lpro.enums.CommandeStatut;
@@ -10,12 +11,10 @@ import org.lpro.provider.Secured;
 import java.net.URI;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.Date;
+import java.util.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Set;
-import java.util.TimeZone;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.json.*;
@@ -43,6 +42,9 @@ public class CommandeRessource {
 
     @Inject
     TailleManager tm;
+
+    @Inject
+    SandwichChoixManager scm;
 
     @Context
     UriInfo uriInfo;
@@ -197,22 +199,30 @@ public class CommandeRessource {
                             .build()
             ).build();
         } else {
-            if (sc.getQte() > 0) {
-                sc = this.cm.addSandwichChoix(cmd, sc);
+            if (cmd.getStatut() == CommandeStatut.ATTENTE) {
+                if (sc.getQte() > 0) {
+                    sc = this.cm.addSandwichChoix(cmd, sc);
 
-                if (sc != null) {
-                    return Response.ok(buildCommandeObject(cmd)).build();
+                    if (sc != null) {
+                        return Response.ok(buildCommandeObject(cmd)).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).entity(
+                                Json.createObjectBuilder()
+                                        .add("error", "Le sandwich ou la taille est introuvable")
+                                        .build()
+                        ).build();
+                    }
                 } else {
-                    return Response.status(Response.Status.NOT_FOUND).entity(
+                    return Response.status(Response.Status.BAD_REQUEST).entity(
                             Json.createObjectBuilder()
-                                    .add("error", "Le sandwich ou la taille est introuvable")
+                                    .add("error", "Quantité invalide")
                                     .build()
                     ).build();
                 }
             } else {
-                return Response.status(Response.Status.BAD_REQUEST).entity(
+                return Response.status(Response.Status.FORBIDDEN).entity(
                         Json.createObjectBuilder()
-                                .add("error", "Quantité invalide")
+                                .add("error", "La commande a été payée")
                                 .build()
                 ).build();
             }
@@ -237,14 +247,14 @@ public class CommandeRessource {
      */
     @DELETE
     @Secured
-    @Path("{catId}/sandwichs/{sandId}")
+    @Path("{cmdId}/sandwichs/{sandId}")
     public Response deleteSandwichToCommande(
-            @PathParam("catId") String catId,
+            @PathParam("cmdId") String cmdId,
             @PathParam("sandId") String sandId,
             @DefaultValue("") @QueryParam("token") String tokenParam,
             @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader
     ) {
-        Commande cmd = this.cm.findById(catId);
+        Commande cmd = this.cm.findById(cmdId);
         if (cmd == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(
                     Json.createObjectBuilder()
@@ -269,29 +279,43 @@ public class CommandeRessource {
                             .build()
             ).build();
         } else {
-            Sandwich sand = this.sm.findById(sandId);
+            if (cmd.getStatut() == CommandeStatut.ATTENTE) {
+                List<SandwichChoix> lsc = this.scm.findAllById(sandId);
 
-            if (sand != null) {
-                boolean res = this.cm.deleteSandwich(cmd, sand);
+                if (lsc != null) {
+                    Iterator<SandwichChoix> iterator = lsc.iterator();
 
-                if (res) {
-                    return Response.ok(
+                    boolean res = false;
+                    while (iterator.hasNext()) {
+                        res = this.cm.deleteSandwich(cmd, iterator.next());
+                        //System.out.println("============================================> " + cmd.getSandwichChoix());
+                    }
+
+                    if (res) {
+                        return Response.ok(
+                                Json.createObjectBuilder()
+                                        .add("success", "Le sandwich " + sandId + " a bien été supprimé de la commande")
+                                        .build()
+                        ).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND)
+                                .entity(
+                                        Json.createObjectBuilder()
+                                                .add("error", "Le sandwich n'existe pas dans la commande")
+                                                .build()
+                                ).build();
+                    }
+                } else {
+                    return Response.status(Response.Status.NOT_FOUND).entity(
                             Json.createObjectBuilder()
-                                    .add("success", "Le sandwich " + sand.getNom() + " a bien été supprimé de la commande")
+                                    .add("error", "Le sandwich n'existe pas")
                                     .build()
                     ).build();
-                } else {
-                    return Response.status(Response.Status.NOT_FOUND)
-                            .entity(
-                                    Json.createObjectBuilder()
-                                            .add("error", "Le sandwich " + sand.getNom() + " n'existe pas dans la commande")
-                                            .build()
-                            ).build();
                 }
             } else {
-                return Response.status(Response.Status.NOT_FOUND).entity(
+                return Response.status(Response.Status.FORBIDDEN).entity(
                         Json.createObjectBuilder()
-                                .add("error", "Le sandwich n'existe pas")
+                                .add("error", "La commande a été payée")
                                 .build()
                 ).build();
             }
@@ -346,10 +370,18 @@ public class CommandeRessource {
                             .build()
             ).build();
         } else {
-            cmd.setDateLivraison(c.getDateLivraison());
-            cmd.setHeureLivraison(c.getHeureLivraison());
+            if (cmd.getStatut() == CommandeStatut.ATTENTE) {
+                cmd.setDateLivraison(c.getDateLivraison());
+                cmd.setHeureLivraison(c.getHeureLivraison());
 
-            return Response.ok(this.buildCommandeObject(cmd)).build();
+                return Response.ok(this.buildCommandeObject(cmd)).build();
+            } else {
+                return Response.status(Response.Status.FORBIDDEN).entity(
+                        Json.createObjectBuilder()
+                                .add("error", "La commande a été payée")
+                                .build()
+                ).build();
+            }
         }
     }
 
@@ -387,7 +419,7 @@ public class CommandeRessource {
                             .build()
             ).build();
         } else {
-            if (cmd.getStatut().toString().equals("ATTENTE")) {
+            if (cmd.getStatut() == CommandeStatut.ATTENTE) {
                 if (payCard.get("nom") != null && payCard.get("numeroCarte") != null && payCard.get("cvv") != null && payCard.get("dateExpiration") != null) {
                     if (payCard.getString("nom").matches("([a-zA-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ\\s-]+)") && payCard.getString("numeroCarte").matches("(([0-9]{4}(\\s|-)){3}([0-9]{4}))") && payCard.getString("cvv").matches("([0-9]{3})")) {
 
