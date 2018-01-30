@@ -15,6 +15,8 @@ import javax.ws.rs.core.Response;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
+import org.lpro.config.Config;
+
 public class TestAuthentification {
 
     private Client client;
@@ -24,7 +26,7 @@ public class TestAuthentification {
     @Before
     public void initClient() {
         this.client = ClientBuilder.newClient();
-        this.target = this.client.target("http://192.168.99.100:8000/lbsjee/api/authentification");
+        this.target = this.client.target(Config.getConfig() + "authentification");
     }
 
     @Test

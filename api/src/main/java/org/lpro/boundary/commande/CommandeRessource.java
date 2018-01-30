@@ -12,7 +12,6 @@ import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Set;
 import java.util.TimeZone;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -355,9 +354,11 @@ public class CommandeRessource {
                 .build();
     }
 
-    private JsonObject buildSandwichsCommande(Set<SandwichChoix> sc) {
+    private JsonObject buildSandwichsCommande(SandwichChoix st) {
         // TODO: Affichage du sandwich
         return Json.createObjectBuilder()
+                .add("nom", st.getSandwich())
+                .add("taille", st.getTaille())
                 .add("prix", 0)
                 .build();
     }
@@ -369,7 +370,7 @@ public class CommandeRessource {
                 .add("token", c.getToken())
                 .add("statut", c.getStatut().toString())
                 .add("utilisateur", this.buildUtilisateur(c.getUtilisateur()))
-                .add("sandwichs", this.buildSandwichsCommande(c.getSandwichChoix()))
+                // .add("sandwichs", this.buildSandwichsCommande(c.getSandwichTaille()))
                 .build();
     }
 
