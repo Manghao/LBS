@@ -31,7 +31,7 @@ public class Commande implements Serializable {
     @ManyToOne
     private Utilisateur utilisateur;
 
-    @ManyToMany(mappedBy = "commande")
+    @ManyToMany
     private Set<SandwichChoix> sandwichChoix = new HashSet<SandwichChoix>();
 
     public Commande() { }

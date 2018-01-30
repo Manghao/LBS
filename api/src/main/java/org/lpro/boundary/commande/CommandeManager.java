@@ -51,9 +51,21 @@ public class CommandeManager {
         try {
             t = qTaille.getSingleResult();
 
-            sc = new SandwichChoix(s.getId(), t.getId());
-            sc.setId(UUID.randomUUID().toString());
-            sc.getCommande().add(cmd);
+            TypedQuery<SandwichChoix> qSc = this.em.createQuery("SELECT sc FROM SandwichChoix sc WHERE sc.sandwich = :sid AND sc.taille = :tid", SandwichChoix.class);
+            qSc.setParameter("sid", sc.getSandwich());
+            qSc.setParameter("tid", sc.getTaille());
+
+            try {
+                SandwichChoix sc2 = qSc.getSingleResult();
+                sc.setId(sc2.getId());
+                sc.setCommande(sc2.getCommande());
+                sc.setQte(sc2.getQte() + sc.getQte());
+            } catch (NoResultException e) {
+                sc.setId(UUID.randomUUID().toString());
+                sc.getCommande().add(cmd);
+                sc.setQte(sc.getQte());
+            }
+
             this.em.merge(sc);
 
             cmd.getSandwichChoix().add(sc);
@@ -65,8 +77,10 @@ public class CommandeManager {
         }
     }
 
-    public boolean deleteSandwich(Commande cmd, Sandwich sand) {
-        // return cmd.getSandwich().remove(sand);
-        return false;
+    public boolean deleteSandwich(Commande cmd, SandwichChoix sc) {
+        boolean res = cmd.getSandwichChoix().remove(sc);
+        this.em.persist(cmd);
+
+        return res;
     }
 }

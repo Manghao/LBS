@@ -1,4 +1,3 @@
-package org.lpro.boundary.carte;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
