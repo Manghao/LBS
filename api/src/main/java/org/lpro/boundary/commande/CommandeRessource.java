@@ -288,7 +288,6 @@ public class CommandeRessource {
                     boolean res = false;
                     while (iterator.hasNext()) {
                         res = this.cm.deleteSandwich(cmd, iterator.next());
-                        //System.out.println("============================================> " + cmd.getSandwichChoix());
                     }
 
                     if (res) {

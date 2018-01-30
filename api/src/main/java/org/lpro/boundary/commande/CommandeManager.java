@@ -78,7 +78,6 @@ public class CommandeManager {
     }
 
     public boolean deleteSandwich(Commande cmd, SandwichChoix sc) {
-        System.out.println("============================================> " + cmd.getSandwichChoix());
         boolean res = cmd.getSandwichChoix().remove(sc);
         this.em.persist(cmd);
 
