@@ -2,3 +2,4 @@ api/.idea/
 api/target/
 api/tests_lbsjee/.idea/
 api/tests_lbsjee/target/
+api/tests_lbsjee/src/test/java/org/lpro/config/

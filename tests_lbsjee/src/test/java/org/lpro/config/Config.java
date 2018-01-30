@@ -3,6 +3,6 @@ package org.lpro.config;
 public class Config {
 
     public static String getConfig() {
-        return "http://localhost:8080/lbsjee/api/";
+        return "http://192.168.99.100:8000/lbsjee/api/";
     }
 }
