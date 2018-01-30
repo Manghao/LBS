@@ -15,7 +15,12 @@ public class Carte {
     @Id
     private String id;
 
-    @NotNull
+    private String numcarte;
+
+    private String nom;
+
+    private String prenom;
+
     private String adresse;
 
     @NotNull
@@ -25,8 +30,15 @@ public class Carte {
 
     public Carte() { }
 
-    public Carte(String id, String pwd) {
-        this.id = id;
+    public Carte(String numcarte, String pwd) {
+        this.numcarte = numcarte;
+        this.password = pwd;
+    }
+
+    public Carte(String nom, String prenom, String adresse, String pwd) {
+        this.nom = nom;
+        this.prenom = prenom;
+        this.adresse = adresse;
         this.password = pwd;
     }
 
@@ -60,5 +72,29 @@ public class Carte {
 
     public void setMontant(int montant) {
         this.montant = montant;
+    }
+
+    public String getNumCarte() {
+        return numcarte;
+    }
+
+    public void setNumCarte(String numcarte) {
+        this.numcarte = numcarte;
+    }
+
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
     }
 }
