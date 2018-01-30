@@ -71,7 +71,6 @@ public class CarteRessource {
 
     @POST
     @Path("/create")
-    @Secured
     public Response createCarte(@Valid Carte carte) {
         Carte c = this.cm.createCarte(carte);
         return (c != null) ? Response.ok().entity(buildJsonForCarte(c)).status(Response.Status.CREATED).build() : Response.status(Response.Status.FORBIDDEN).build();
