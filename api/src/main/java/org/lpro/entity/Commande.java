@@ -20,6 +20,9 @@ public class Commande implements Serializable {
     @NotNull
     private String heureLivraison;
 
+    @NotNull
+    private String adresseLivraison;
+
     private String token;
 
     @Enumerated(EnumType.STRING)
@@ -33,10 +36,11 @@ public class Commande implements Serializable {
 
     public Commande() { }
 
-    public Commande(Utilisateur utilisateur, String dateLivraison, String heureLivraison) {
+    public Commande(Utilisateur utilisateur, String dateLivraison, String heureLivraison, String adresseLivraison) {
         this.utilisateur = utilisateur;
         this.dateLivraison = dateLivraison;
         this.heureLivraison = heureLivraison;
+        this.adresseLivraison = adresseLivraison;
     }
 
     public String getId() {
@@ -93,5 +97,13 @@ public class Commande implements Serializable {
 
     public void setSandwichChoix(Set<SandwichChoix> sandwichChoix) {
         this.sandwichChoix = sandwichChoix;
+    }
+
+    public String getAdresseLivraison() {
+        return adresseLivraison;
+    }
+
+    public void setAdresseLivraison(String adresseLivraison) {
+        this.adresseLivraison = adresseLivraison;
     }
 }

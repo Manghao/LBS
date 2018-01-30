@@ -103,37 +103,38 @@ public class CommandeRessource {
     @POST
     @Secured
     public Response addCommande(@Valid Commande commande) {
-        try {
+        Utilisateur utilisateur = this.um.findById(commande.getUtilisateur().getId());
+        if (utilisateur == null) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Utilisateur introuvable")
+                            .build()
+            ).build();
+        }
 
-            Utilisateur utilisateur = this.um.findById(commande.getUtilisateur().getId());
-            if (utilisateur == null) {
-                return Response.status(Response.Status.BAD_REQUEST).entity(
-                        Json.createObjectBuilder()
-                                .add("error", "Utilisateur introuvable")
-                                .build()
-                ).build();
-            }
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        sdf.setTimeZone(TimeZone.getDefault());
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-            sdf.setTimeZone(TimeZone.getDefault());
-
-            Date current = Date.from(LocalDateTime.now()
-                    .atZone(ZoneId.systemDefault())
+        Date current = Date.from(LocalDateTime.now()
+                .atZone(ZoneId.systemDefault())
                     .toInstant());
-
+        try {
+            sdf.setLenient(false);
             Date dateCommande = sdf.parse(commande.getDateLivraison() + " " + commande.getHeureLivraison());
-
             Timestamp currentTimestamp = new Timestamp(current.getTime());
             Timestamp timestampCommande = new Timestamp(dateCommande.getTime());
 
             if (timestampCommande.before(currentTimestamp)) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(
                         Json.createObjectBuilder()
-                                .add("error", "La date de la commande est inférieure à la date courante")
+                                .add("error", "La date de la commande est inferieure a la date courante")
                                 .build()
                 ).build();
             }
-        } catch (ParseException pe) { }
+        } catch (ParseException pe) {
+            pe.printStackTrace();
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
 
         Commande newCommande = this.cm.save(commande);
         URI uri = uriInfo.getAbsolutePathBuilder().path(newCommande.getId()).build();
