@@ -20,6 +20,7 @@ public class CategorieManager {
     }
 
     public List<Categorie> findAll() {
+
         Query q = this.em.createNamedQuery("Categorie.findAll", Categorie.class);
         q.setHint("javax.persistance.cache.storeMode", CacheStoreMode.REFRESH);
         return q.getResultList();
