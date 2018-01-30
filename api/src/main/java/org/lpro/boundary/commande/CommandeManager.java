@@ -77,8 +77,10 @@ public class CommandeManager {
         }
     }
 
-    public boolean deleteSandwich(Commande cmd, Sandwich sand) {
-        // return cmd.getSandwich().remove(sand);
-        return false;
+    public boolean deleteSandwich(Commande cmd, SandwichChoix sc) {
+        boolean res = cmd.getSandwichChoix().remove(sc);
+        this.em.persist(cmd);
+
+        return res;
     }
 }

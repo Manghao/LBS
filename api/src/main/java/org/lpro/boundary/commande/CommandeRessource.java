@@ -1,22 +1,20 @@
 package org.lpro.boundary.commande;
 
 import org.lpro.boundary.authentification.UtilisateurManager;
-import org.lpro.boundary.categorie.CategorieRessource;
 import org.lpro.boundary.sandwich.SandwichManager;
+import org.lpro.boundary.sandwichChoix.SandwichChoixManager;
 import org.lpro.boundary.taille.TailleManager;
 import org.lpro.entity.*;
+import org.lpro.enums.CommandeStatut;
 import org.lpro.provider.Secured;
 
 import java.net.URI;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.Date;
+import java.util.*;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TimeZone;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.json.*;
@@ -44,6 +42,9 @@ public class CommandeRessource {
 
     @Inject
     TailleManager tm;
+
+    @Inject
+    SandwichChoixManager scm;
 
     @Context
     UriInfo uriInfo;
@@ -123,7 +124,7 @@ public class CommandeRessource {
 
         Date current = Date.from(LocalDateTime.now()
                 .atZone(ZoneId.systemDefault())
-                    .toInstant());
+                .toInstant());
         try {
             sdf.setLenient(false);
             Date dateCommande = sdf.parse(commande.getDateLivraison() + " " + commande.getHeureLivraison());
@@ -133,7 +134,7 @@ public class CommandeRessource {
             if (timestampCommande.before(currentTimestamp)) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(
                         Json.createObjectBuilder()
-                                .add("error", "La date de la commande est inferieure a la date courante")
+                                .add("error", "La date de la commande est inférieure a la date courante")
                                 .build()
                 ).build();
             }
@@ -198,22 +199,30 @@ public class CommandeRessource {
                             .build()
             ).build();
         } else {
-            if (sc.getQte() > 0) {
-                sc = this.cm.addSandwichChoix(cmd, sc);
+            if (cmd.getStatut() == CommandeStatut.ATTENTE) {
+                if (sc.getQte() > 0) {
+                    sc = this.cm.addSandwichChoix(cmd, sc);
 
-                if (sc != null) {
-                    return Response.ok(buildCommandeObject(cmd)).build();
+                    if (sc != null) {
+                        return Response.ok(buildCommandeObject(cmd)).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).entity(
+                                Json.createObjectBuilder()
+                                        .add("error", "Le sandwich ou la taille est introuvable")
+                                        .build()
+                        ).build();
+                    }
                 } else {
-                    return Response.status(Response.Status.NOT_FOUND).entity(
+                    return Response.status(Response.Status.BAD_REQUEST).entity(
                             Json.createObjectBuilder()
-                                    .add("error", "Le sandwich ou la taille est introuvable")
+                                    .add("error", "Quantité invalide")
                                     .build()
                     ).build();
                 }
             } else {
-                return Response.status(Response.Status.BAD_REQUEST).entity(
+                return Response.status(Response.Status.FORBIDDEN).entity(
                         Json.createObjectBuilder()
-                                .add("error", "Quantité invalide")
+                                .add("error", "La commande a été payée")
                                 .build()
                 ).build();
             }
@@ -238,14 +247,14 @@ public class CommandeRessource {
      */
     @DELETE
     @Secured
-    @Path("{catId}/sandwichs/{sandId}")
+    @Path("{cmdId}/sandwichs/{sandId}")
     public Response deleteSandwichToCommande(
-            @PathParam("catId") String catId,
+            @PathParam("cmdId") String cmdId,
             @PathParam("sandId") String sandId,
             @DefaultValue("") @QueryParam("token") String tokenParam,
             @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader
     ) {
-        Commande cmd = this.cm.findById(catId);
+        Commande cmd = this.cm.findById(cmdId);
         if (cmd == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(
                     Json.createObjectBuilder()
@@ -270,29 +279,42 @@ public class CommandeRessource {
                             .build()
             ).build();
         } else {
-            Sandwich sand = this.sm.findById(sandId);
+            if (cmd.getStatut() == CommandeStatut.ATTENTE) {
+                List<SandwichChoix> lsc = this.scm.findAllById(sandId);
 
-            if (sand != null) {
-                boolean res = this.cm.deleteSandwich(cmd, sand);
+                if (lsc != null) {
+                    Iterator<SandwichChoix> iterator = lsc.iterator();
 
-                if (res) {
-                    return Response.ok(
+                    boolean res = false;
+                    while (iterator.hasNext()) {
+                        res = this.cm.deleteSandwich(cmd, iterator.next());
+                    }
+
+                    if (res) {
+                        return Response.ok(
+                                Json.createObjectBuilder()
+                                        .add("success", "Le sandwich " + sandId + " a bien été supprimé de la commande")
+                                        .build()
+                        ).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND)
+                                .entity(
+                                        Json.createObjectBuilder()
+                                                .add("error", "Le sandwich n'existe pas dans la commande")
+                                                .build()
+                                ).build();
+                    }
+                } else {
+                    return Response.status(Response.Status.NOT_FOUND).entity(
                             Json.createObjectBuilder()
-                                    .add("success", "Le sandwich " + sand.getNom() + " a bien été supprimé de la commande")
+                                    .add("error", "Le sandwich n'existe pas")
                                     .build()
                     ).build();
-                } else {
-                    return Response.status(Response.Status.NOT_FOUND)
-                            .entity(
-                                    Json.createObjectBuilder()
-                                            .add("error", "Le sandwich " + sand.getNom() + " n'existe pas dans la commande")
-                                            .build()
-                            ).build();
                 }
             } else {
-                return Response.status(Response.Status.NOT_FOUND).entity(
+                return Response.status(Response.Status.FORBIDDEN).entity(
                         Json.createObjectBuilder()
-                                .add("error", "Le sandwich n'existe pas")
+                                .add("error", "La commande a été payée")
                                 .build()
                 ).build();
             }
@@ -347,10 +369,107 @@ public class CommandeRessource {
                             .build()
             ).build();
         } else {
-            cmd.setDateLivraison(c.getDateLivraison());
-            cmd.setHeureLivraison(c.getHeureLivraison());
+            if (cmd.getStatut() == CommandeStatut.ATTENTE) {
+                cmd.setDateLivraison(c.getDateLivraison());
+                cmd.setHeureLivraison(c.getHeureLivraison());
 
-            return Response.ok(this.buildCommandeObject(cmd)).build();
+                return Response.ok(this.buildCommandeObject(cmd)).build();
+            } else {
+                return Response.status(Response.Status.FORBIDDEN).entity(
+                        Json.createObjectBuilder()
+                                .add("error", "La commande a été payée")
+                                .build()
+                ).build();
+            }
+        }
+    }
+
+    @POST
+    @Secured
+    @Path("{id}/checkout")
+    public Response checkoutCommande(
+            @PathParam("id") String id,
+            @DefaultValue("") @QueryParam("token") String tokenParam,
+            @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
+            JsonObject payCard
+    ) {
+        Commande cmd = this.cm.findById(id);
+        if (cmd == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "La commande n'existe pas")
+                            .build()
+            ).build();
+        }
+        if (tokenParam.isEmpty() && tokenHeader.isEmpty()) {
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'existe pas")
+                            .build()
+            ).build();
+        }
+
+        String token = (tokenParam.isEmpty()) ? tokenHeader : tokenParam;
+
+        if (!cmd.getToken().equals(token)) {
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'est pas le bon")
+                            .build()
+            ).build();
+        } else {
+            if (cmd.getStatut() == CommandeStatut.ATTENTE) {
+                if (payCard.get("nom") != null && payCard.get("numeroCarte") != null && payCard.get("cvv") != null && payCard.get("dateExpiration") != null) {
+                    if (payCard.getString("nom").matches("([a-zA-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ\\s-]+)") && payCard.getString("numeroCarte").matches("(([0-9]{4}(\\s|-)){3}([0-9]{4}))") && payCard.getString("cvv").matches("([0-9]{3})")) {
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("MM-yy");
+                        sdf.setTimeZone(TimeZone.getDefault());
+
+                        Date current = Date.from(LocalDateTime.now()
+                                .atZone(ZoneId.systemDefault())
+                                .toInstant());
+                        try {
+                            sdf.setLenient(false);
+                            Date dateExpiration = sdf.parse(payCard.getString("dateExpiration"));
+                            Timestamp currentTimestamp = new Timestamp(current.getTime());
+                            Timestamp timestampExpiration = new Timestamp(dateExpiration.getTime());
+
+                            if (timestampExpiration.after(currentTimestamp)) {
+                                cmd.setStatut(CommandeStatut.PAYEE);
+
+                                return Response.ok(buildCommandeObject(cmd)).build();
+                            } else {
+                                return Response.status(Response.Status.FORBIDDEN).entity(
+                                        Json.createObjectBuilder()
+                                                .add("error", "La date d'expiration est inférieure a la date courante")
+                                                .build()
+                                ).build();
+                            }
+                        } catch (ParseException pe) {
+                            pe.printStackTrace();
+                            return Response.status(Response.Status.BAD_REQUEST).build();
+                        }
+                    } else {
+                        return Response.status(Response.Status.FORBIDDEN).entity(
+                                Json.createObjectBuilder()
+                                        .add("error", "Informations de paiement incorectes")
+                                        .build()
+                        ).build();
+                    }
+                } else {
+                    return Response.status(Response.Status.FORBIDDEN).entity(
+                            Json.createObjectBuilder()
+                                    .add("error", "Informations de paiement manquantes")
+                                    .build()
+                    ).build();
+                }
+            } else {
+                return Response.status(Response.Status.FORBIDDEN).entity(
+                        Json.createObjectBuilder()
+                                .add("error", "La commande a déjà été payée")
+                                .build()
+                ).build();
+            }
         }
     }
 
@@ -370,7 +489,6 @@ public class CommandeRessource {
     }
 
     private JsonArray buildSandwichsCommande(Set<SandwichChoix> setSC) {
-        // TODO: Affichage du sandwich
         JsonArrayBuilder jab = Json.createArrayBuilder();
         double total = setSC.stream().mapToDouble(sc -> (this.tm.findById(sc.getTaille()).getPrix() * sc.getQte())).sum();
         setSC.forEach((sc) -> {
@@ -407,7 +525,7 @@ public class CommandeRessource {
         return Json.createObjectBuilder()
                 .add("date", c.getDateLivraison())
                 .add("heure", c.getHeureLivraison())
-                //.add("adresse", c.getAdresseLivraison())
+                .add("adresse", c.getAdresseLivraison())
                 .build();
     }
 }
