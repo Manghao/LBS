@@ -1,5 +1,6 @@
 package org.lpro.entity;
 
+import javax.enterprise.inject.Default;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
@@ -22,14 +23,17 @@ public class SandwichChoix implements Serializable {
     @NotNull
     private String sandwich, taille;
 
+    private int qte;
+
     @ManyToMany
     private Set<Commande> commande = new HashSet<Commande>();
 
     public SandwichChoix() { }
 
-    public SandwichChoix(String s, String t) {
+    public SandwichChoix(String s, String t, int qte) {
         this.sandwich = s;
         this.taille = t;
+        this.qte = qte;
     }
 
     public String getId() {
@@ -54,6 +58,14 @@ public class SandwichChoix implements Serializable {
 
     public void setTaille(String taille) {
         this.taille = taille;
+    }
+
+    public int getQte() {
+        return qte;
+    }
+
+    public void setQte(int qte) {
+        this.qte = qte;
     }
 
     public Set<Commande> getCommande() {
