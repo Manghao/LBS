@@ -1,5 +1,9 @@
 package org.lpro.boundary.categorie;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.lpro.boundary.categorie.exception.CategorieNotFound;
 import org.lpro.boundary.sandwich.SandwichManager;
 import org.lpro.boundary.sandwich.SandwichRessource;
@@ -23,6 +27,7 @@ import java.util.Set;
 @Path("categories")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Api(value = "Catégorie")
 public class CategorieRessource {
 
     @Inject
@@ -42,6 +47,10 @@ public class CategorieRessource {
      * @apiSuccess {List} categories Liste des catégories.
      */
     @GET
+    @ApiOperation(value = "Récupère toutes les catégories", notes = "Renvoie le JSON associé à la collection de catégories")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response getCategories() {
         JsonObject json = Json.createObjectBuilder()
                 .add("type", "collection")
@@ -62,6 +71,11 @@ public class CategorieRessource {
      */
     @GET
     @Path("{id}")
+    @ApiOperation(value = "Récupère une catégorie", notes = "Renvoie le JSON associé à la catégorie")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response getOneCategorie(@PathParam("id") String id, @Context UriInfo uriInfo) {
         return Optional.ofNullable(this.cm.findById(id))
                 .map(c -> Response.ok(categorie2Json(c)).build())
@@ -79,6 +93,10 @@ public class CategorieRessource {
      */
     @GET
     @Path("{id}/sandwichs")
+    @ApiOperation(value = "Récupère tous les sandwichs d'une catégorie", notes = "Renvoie le JSON associé à la collection de sandwichs")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response getCategorieSandwichs(@PathParam("id") String id, @Context UriInfo uriInfo) {
         return Optional.ofNullable(this.cm.findById(id))
                 .map(c -> Response.ok(this.buildSandwichObject(c)).build())
@@ -97,6 +115,11 @@ public class CategorieRessource {
      */
     @POST
     @Path("{id}/sandwichs")
+    @ApiOperation(value = "Ajoute un sandwich à une catégorie", notes = "Ajoute un sandwich à une catégorie à partir du JSON fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Created"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response addSandwichToCategorie(@PathParam("id") String catId, @Context UriInfo uriInfo, Sandwich sand) {
         Categorie c = this.cm.findById(catId);
 
@@ -120,6 +143,10 @@ public class CategorieRessource {
      * @apiSuccess {Categorie} categorie La catégorie nouvellement créée.
      */
     @POST
+    @ApiOperation(value = "Crée une catégorie", notes = "Crée une catégorie à partir du JSON fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Created"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response newCategorie(@Valid Categorie c, @Context UriInfo uriInfo) {
         Categorie cat = this.cm.save(c);
         String id = cat.getId();
@@ -138,6 +165,10 @@ public class CategorieRessource {
      */
     @DELETE
     @Path("{id}")
+    @ApiOperation(value = "Supprime une catégorie", notes = "Supprime la catégorie dont l'ID est fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "No content"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response removeCategorie(@PathParam("id") String id) {
         this.cm.delete(id);
         return Response.status(Response.Status.NO_CONTENT).build();
@@ -154,9 +185,36 @@ public class CategorieRessource {
      */
     @PUT
     @Path("{id}")
-    public Categorie updateCategorie(@PathParam("id") String id, Categorie c) {
-        c.setId(id);
-        return this.cm.save(c);
+    @ApiOperation(value = "Modifie une catégorie", notes = "Modifie la catégorie dont l'ID est fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    public Response updateCategorie(@PathParam("id") String id, Categorie c) {
+        Categorie cat = this.cm.findById(id);
+
+        if (cat != null) {
+            if (c.getNom() != null) {
+                if (!c.getNom().equals(""))
+                    cat.setNom(c.getNom());
+            }
+            if (c.getDescription() != null) {
+                if (!c.getDescription().equals(""))
+                    cat.setDescription(c.getDescription());
+            }
+            if (c.getSandwich().size() > 0)
+                cat.setSandwich(c.getSandwich());
+
+            this.cm.update(cat);
+
+            return Response.ok(buildJson(cat)).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le sandwich " + id + " n'existe pas")
+                            .build()
+            ).build();
+        }
     }
 
     private JsonArray getCategoriesList() {

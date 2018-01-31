@@ -47,6 +47,11 @@
             <artifactId>jersey-hk2</artifactId>
             <version>2.26</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.phillip-kruger</groupId>
+            <artifactId>apiee-core</artifactId>
+            <version>1.0.1</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>lbsjee</finalName>

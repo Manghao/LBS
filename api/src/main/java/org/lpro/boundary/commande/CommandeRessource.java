@@ -1,6 +1,11 @@
 package org.lpro.boundary.commande;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.lpro.boundary.authentification.UtilisateurManager;
+import org.lpro.boundary.carte.CarteManager;
 import org.lpro.boundary.sandwich.SandwichManager;
 import org.lpro.boundary.sandwichChoix.SandwichChoixManager;
 import org.lpro.boundary.taille.TailleManager;
@@ -26,9 +31,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 @Stateless
+@Path("commandes")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Path("commandes")
+@Api(value = "Commande")
 public class CommandeRessource {
 
     @Inject
@@ -45,6 +51,9 @@ public class CommandeRessource {
 
     @Inject
     SandwichChoixManager scm;
+
+    @Inject
+    CarteManager cardman;
 
     @Context
     UriInfo uriInfo;
@@ -64,6 +73,12 @@ public class CommandeRessource {
      */
     @GET
     @Path("{id}")
+    @ApiOperation(value = "Récupère une commande", notes = "Renvoie le JSON associé à la commande")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response getOneCommande(
             @PathParam("id") String id,
             @DefaultValue("") @QueryParam("token") String tokenParam,
@@ -101,24 +116,19 @@ public class CommandeRessource {
 
     /**
      * @api {post} /commandes Créer une nouvelle commande
-     * @apiName addCommande
+     * @apiName newCommande
      * @apiGroup Commande
      *
      * @apiSuccess {Commande} commande Une commande.
      * @apiError BadRequest L'heure de la commande est inférieure à la date courante.
      */
     @POST
-    @Secured
-    public Response addCommande(@Valid Commande commande) {
-        Utilisateur utilisateur = this.um.findById(commande.getUtilisateur().getId());
-        if (utilisateur == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(
-                    Json.createObjectBuilder()
-                            .add("error", "Utilisateur introuvable")
-                            .build()
-            ).build();
-        }
-
+    @ApiOperation(value = "Crée une commande", notes = "Crée une commande à partir du JSON fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Created"),
+            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    public Response newCommande(@Valid Commande commande) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
         sdf.setTimeZone(TimeZone.getDefault());
 
@@ -166,8 +176,14 @@ public class CommandeRessource {
      * @apiError SandwichNotFound Le <code>sandwich</code> à ajouter n'existe pas.
      */
     @POST
-    @Secured
     @Path("{id}/sandwichs")
+    @ApiOperation(value = "Ajoute un sandwich à une commande", notes = "Ajoute un sandwich à une commande à partir du JSON fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response addSandwichToCommande(
             @PathParam("id") String id,
             @DefaultValue("") @QueryParam("token") String tokenParam,
@@ -246,8 +262,13 @@ public class CommandeRessource {
      * @apiError SandwichNotFound Le <code>sandwich</code> à supprimer n'existe pas dans la commande.
      */
     @DELETE
-    @Secured
     @Path("{cmdId}/sandwichs/{sandId}")
+    @ApiOperation(value = "Supprime un sandwich d'une commande", notes = "Supprime un sandwich d'une commande à partir de l'id du sandwich fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response deleteSandwichToCommande(
             @PathParam("cmdId") String cmdId,
             @PathParam("sandId") String sandId,
@@ -291,11 +312,7 @@ public class CommandeRessource {
                     }
 
                     if (res) {
-                        return Response.ok(
-                                Json.createObjectBuilder()
-                                        .add("success", "Le sandwich " + sandId + " a bien été supprimé de la commande")
-                                        .build()
-                        ).build();
+                        return Response.ok(buildCommandeObject(cmd)).build();
                     } else {
                         return Response.status(Response.Status.NOT_FOUND)
                                 .entity(
@@ -336,8 +353,13 @@ public class CommandeRessource {
      * @apiError CommandeForbidden Le <code>token</code> de la commande n'existe pas ou n'est pas le bon.
      */
     @PUT
-    @Secured
     @Path("{id}")
+    @ApiOperation(value = "Modifie la date de livraison d'une commande", notes = "Modifie la date de livraison d'une commande à partir du JSON fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response updateCommande(
             @PathParam("id") String id,
             @DefaultValue("") @QueryParam("token") String tokenParam,
@@ -385,8 +407,14 @@ public class CommandeRessource {
     }
 
     @POST
-    @Secured
     @Path("{id}/checkout")
+    @ApiOperation(value = "Paiement d'une commande", notes = "Peiement d'une commande à partir des données de carte bancaire fourni dans le JSON")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "Bad Request"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response checkoutCommande(
             @PathParam("id") String id,
             @DefaultValue("") @QueryParam("token") String tokenParam,
@@ -419,7 +447,7 @@ public class CommandeRessource {
             ).build();
         } else {
             if (cmd.getStatut() == CommandeStatut.ATTENTE) {
-                if (payCard.get("nom") != null && payCard.get("numeroCarte") != null && payCard.get("cvv") != null && payCard.get("dateExpiration") != null) {
+                if (payCard.get("nom") != null && payCard.get("numeroCarte") != null && payCard.get("cvv") != null && payCard.get("dateExpiration") != null && payCard.get("numeroCarteFidelite") != null) {
                     if (payCard.getString("nom").matches("([a-zA-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ\\s-]+)") && payCard.getString("numeroCarte").matches("(([0-9]{4}(\\s|-)){3}([0-9]{4}))") && payCard.getString("cvv").matches("([0-9]{3})")) {
 
                         SimpleDateFormat sdf = new SimpleDateFormat("MM-yy");
@@ -435,9 +463,22 @@ public class CommandeRessource {
                             Timestamp timestampExpiration = new Timestamp(dateExpiration.getTime());
 
                             if (timestampExpiration.after(currentTimestamp)) {
-                                cmd.setStatut(CommandeStatut.PAYEE);
+                                Carte card = this.cardman.findByNumCarte(payCard.getString("numeroCarteFidelite"));
 
-                                return Response.ok(buildCommandeObject(cmd)).build();
+                                if (card != null) {
+                                    double total = cmd.getSandwichChoix().stream().mapToDouble(sc -> (this.tm.findById(sc.getTaille()).getPrix() * sc.getQte())).sum();
+
+                                    card.setMontant(card.getMontant() + total);
+                                    cmd.setStatut(CommandeStatut.PAYEE);
+
+                                    return Response.ok(buildCommandeObject(cmd)).build();
+                                } else {
+                                    return Response.status(Response.Status.NOT_FOUND).entity(
+                                            Json.createObjectBuilder()
+                                                    .add("error", "La carte de fidélité est introuvable")
+                                                    .build()
+                                    ).build();
+                                }
                             } else {
                                 return Response.status(Response.Status.FORBIDDEN).entity(
                                         Json.createObjectBuilder()
@@ -479,12 +520,11 @@ public class CommandeRessource {
                 .build();
     }
 
-    private JsonObject buildUtilisateur(Utilisateur u) {
+    private JsonObject buildClient(Commande c) {
         return Json.createObjectBuilder()
-                .add("id", u.getId())
-                .add("nom", u.getNom())
-                .add("prenom", u.getPrenom())
-                .add("mail", u.getMail())
+                .add("nom", c.getNom())
+                .add("prenom", c.getPrenom())
+                .add("mail", c.getMail())
                 .build();
     }
 
@@ -516,7 +556,7 @@ public class CommandeRessource {
                 .add("livraison", buildJsonForLivraison(c))
                 .add("token", c.getToken())
                 .add("statut", c.getStatut().toString())
-                .add("utilisateur", this.buildUtilisateur(c.getUtilisateur()))
+                .add("client", this.buildClient(c))
                 .add("sandwichs", this.buildSandwichsCommande(c.getSandwichChoix()))
                 .build();
     }

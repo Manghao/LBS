@@ -1,11 +1,15 @@
+package org.lpro.boundary.carte;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.lpro.boundary.carte.CarteManager;
 import org.lpro.control.KeyManagement;
 import org.lpro.control.PasswordManagement;
 import org.lpro.entity.Carte;
-import org.lpro.entity.Commande;
-import org.lpro.entity.Utilisateur;
 import org.lpro.provider.Secured;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -28,9 +32,10 @@ import java.util.Date;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 
 @Stateless
+@Path("card")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-@Path("card")
+@Api(value = "Carte")
 public class CarteRessource {
 
     @Context
@@ -54,6 +59,11 @@ public class CarteRessource {
     @Produces("application/json")
     @Consumes("application/json")
     @Secured
+    @ApiOperation(value = "Récupère une carte de fidélité", notes = "Récupère une carte de fidélité à partir du JSON fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response getCard(@Valid Carte carte) {
         try {
             String numCarte = carte.getNumCarte();
@@ -86,6 +96,11 @@ public class CarteRessource {
      */
     @POST
     @Path("/create")
+    @ApiOperation(value = "Crée une carte de fidélité", notes = "Crée une carte de fidélité à partir du JSON fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Created"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response createCarte(@Valid Carte carte) {
         Carte c = this.cm.createCarte(carte);
         return (c != null) ? Response.ok().entity(buildJsonForCarte(c)).status(Response.Status.CREATED).build() : Response.status(Response.Status.FORBIDDEN).build();

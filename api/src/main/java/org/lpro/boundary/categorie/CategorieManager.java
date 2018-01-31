@@ -32,6 +32,10 @@ public class CategorieManager {
         return this.em.merge(c);
     }
 
+    public Categorie update(Categorie c) {
+        return this.em.merge(c);
+    }
+
     public void delete(String id) {
         try {
             Categorie ref = this.em.getReference(Categorie.class, id);

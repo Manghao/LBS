@@ -22,6 +22,20 @@ public class CarteManager
     @PersistenceContext
     EntityManager em;
 
+    public Carte findByNumCarte(String num) {
+        Carte c = null;
+
+        TypedQuery<Carte> query = this.em.createQuery("SELECT c FROM Carte c WHERE c.numcarte = :numcarte", Carte.class);
+        query.setParameter("numcarte", num);
+
+        try {
+            c = query.getSingleResult();
+        } catch (NoResultException e) {
+            c = null;
+        }
+        return c;
+    }
+
     public Carte findCarte(Carte carte) {
         Carte c = null;
 
