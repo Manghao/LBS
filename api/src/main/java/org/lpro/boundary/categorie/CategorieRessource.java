@@ -39,13 +39,6 @@ public class CategorieRessource {
     @Context
     UriInfo uriInfo;
 
-    /**
-     * @api {get} /categories Récupérer toutes les catégories
-     * @apiName getCategories
-     * @apiGroup Categorie
-     *
-     * @apiSuccess {List} categories Liste des catégories.
-     */
     @GET
     @ApiOperation(value = "Récupère toutes les catégories", notes = "Renvoie le JSON associé à la collection de catégories")
     @ApiResponses(value = {
@@ -59,16 +52,6 @@ public class CategorieRessource {
         return Response.ok(json).build();
     }
 
-    /**
-     * @api {get} /categories/:id Récupérer une catégorie
-     * @apiName getOneCategorie
-     * @apiGroup Categorie
-     *
-     * @apiParam {String} id ID unique d'une catégorie.
-     *
-     * @apiSuccess {Categorie} categorie Une catégorie.
-     * @apiError CategorieNotFound L'<code>id</code> de la catégorie n'existe pas.
-     */
     @GET
     @Path("{id}")
     @ApiOperation(value = "Récupère une catégorie", notes = "Renvoie le JSON associé à la catégorie")
@@ -82,15 +65,6 @@ public class CategorieRessource {
                 .orElseThrow(() -> new CategorieNotFound("Ressource non disponible" + uriInfo.getPath()));
     }
 
-    /**
-     * @api {get} /categories/:id/sandwichs Récupérer les sandwichs d'une catégorie
-     * @apiName getCategorieSandwichs
-     * @apiGroup Categorie
-     *
-     * @apiParam {String} id ID unique d'une catégorie.
-     *
-     * @apiSuccess {List} sandwichs Les sandwichs d'une catégorie.
-     */
     @GET
     @Path("{id}/sandwichs")
     @ApiOperation(value = "Récupère tous les sandwichs d'une catégorie", notes = "Renvoie le JSON associé à la collection de sandwichs")
@@ -103,16 +77,6 @@ public class CategorieRessource {
                 .orElseThrow(() -> new CategorieNotFound("Ressource non disponible" + uriInfo.getPath()));
     }
 
-    /**
-     * @api {post} /categories/:id/sandwichs Ajouter un sandwich à une catégorie
-     * @apiName addSandwichToCategorie
-     * @apiGroup Categorie
-     *
-     * @apiParam {String} id ID unique d'une catégorie.
-     *
-     * @apiSuccess {Sandwich} sandwich Le sandwich ajouté à la catégorie.
-     * @apiError {Status} status Statut 404 NOT FOUND car la catégorie n'existe pas
-     */
     @POST
     @Path("{id}/sandwichs")
     @ApiOperation(value = "Ajoute un sandwich à une catégorie", notes = "Ajoute un sandwich à une catégorie à partir du JSON fourni")
@@ -135,13 +99,6 @@ public class CategorieRessource {
         }
     }
 
-    /**
-     * @api {post} /categories Créer une nouvelle catégorie
-     * @apiName newCategorie
-     * @apiGroup Categorie
-     *
-     * @apiSuccess {Categorie} categorie La catégorie nouvellement créée.
-     */
     @POST
     @ApiOperation(value = "Crée une catégorie", notes = "Crée une catégorie à partir du JSON fourni")
     @ApiResponses(value = {
@@ -154,15 +111,6 @@ public class CategorieRessource {
         return Response.created(uri).entity(this.buildJson(cat)).build();
     }
 
-    /**
-     * @api {delete} /categories/:id Supprimer une catégorie
-     * @apiName removeCategorie
-     * @apiGroup Categorie
-     *
-     * @apiParam {String} id ID unique d'une catégorie.
-     *
-     * @apiSuccess {Status} status Retourne le code 204 (No Content).
-     */
     @DELETE
     @Path("{id}")
     @ApiOperation(value = "Supprime une catégorie", notes = "Supprime la catégorie dont l'ID est fourni")
@@ -174,15 +122,6 @@ public class CategorieRessource {
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
-    /**
-     * @api {put} /categories/:id Modifier une catégorie
-     * @apiName updateCategorie
-     * @apiGroup Categorie
-     *
-     * @apiParam {String} id ID unique d'une catégorie.
-     *
-     * @apiSuccess {Categorie} categorie La catégorie modifiée.
-     */
     @PUT
     @Path("{id}")
     @ApiOperation(value = "Modifie une catégorie", notes = "Modifie la catégorie dont l'ID est fourni")

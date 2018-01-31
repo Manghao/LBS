@@ -47,14 +47,6 @@ public class CarteRessource {
     @Inject
     CarteManager cm;
 
-    /**
-     * @api {post} /card Récuperer une carte de fidélité
-     * @apiName getCard
-     * @apiGroup Carte
-     *
-     * @apiSuccess {Carte} carte Une carte de fidélité.
-     * @apiError Unauthorized le numéro de carte ou le mot de passe est invalide
-     */
     @POST
     @Produces("application/json")
     @Consumes("application/json")
@@ -86,14 +78,6 @@ public class CarteRessource {
         }
     }
 
-    /**
-     * @api {post} /card/create Créer une carte de fidélité
-     * @apiName createCarte
-     * @apiGroup Carte
-     *
-     * @apiSuccess {Carte} carte Une carte de fidélité.
-     * @apiError Forbidden Impossible de créer une carte de fidélité
-     */
     @POST
     @Path("/create")
     @ApiOperation(value = "Crée une carte de fidélité", notes = "Crée une carte de fidélité à partir du JSON fourni")
