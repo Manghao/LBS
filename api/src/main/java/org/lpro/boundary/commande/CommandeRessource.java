@@ -7,6 +7,8 @@ import org.lpro.boundary.sandwich.SandwichManager;
 import org.lpro.boundary.sandwichChoix.SandwichChoixManager;
 import org.lpro.boundary.taille.TailleManager;
 import org.lpro.entity.*;
+import org.lpro.entity.apiModels.CommandeUpdateLivraison;
+import org.lpro.entity.apiModels.NewCommande;
 import org.lpro.entity.apiModels.PayCard;
 import org.lpro.entity.apiModels.SandwichUpdate;
 import org.lpro.enums.CommandeStatut;
@@ -22,7 +24,6 @@ import java.time.ZoneId;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.json.*;
-import javax.validation.Valid;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -56,6 +57,24 @@ public class CommandeRessource {
 
     @Context
     UriInfo uriInfo;
+
+    @GET
+    @Secured
+    @ApiOperation(value = "Récupère toutes les commandes", notes = "Renvoie le JSON associé à la collection de commandes")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    public Response getCommandes(
+            @DefaultValue("") @QueryParam("token") String tokenParam,
+            @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
+            @QueryParam("statut") String statut
+    ) {
+        List<Commande> commandes = this.cm.findAll(statut);
+
+        return Response.ok(buildJsonCommandes(commandes)).build();
+    }
 
     @GET
     @Path("{id}")
@@ -106,18 +125,23 @@ public class CommandeRessource {
             @ApiResponse(code = 201, message = "Created"),
             @ApiResponse(code = 400, message = "Bad Request"),
             @ApiResponse(code = 500, message = "Internal server error")})
-    public Response newCommande(@Valid Commande commande) {
+    public Response newCommande(NewCommande commande) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
         sdf.setTimeZone(TimeZone.getDefault());
 
         Date current = Date.from(LocalDateTime.now()
                 .atZone(ZoneId.systemDefault())
                 .toInstant());
+
+        Commande c;
+
         try {
             sdf.setLenient(false);
             Date dateCommande = sdf.parse(commande.getDateLivraison() + " " + commande.getHeureLivraison());
             Timestamp currentTimestamp = new Timestamp(current.getTime());
             Timestamp timestampCommande = new Timestamp(dateCommande.getTime());
+
+            c = new Commande(timestampCommande, commande.getAdresseLivraison(), commande.getNom(), commande.getPrenom(), commande.getMail());
 
             if (timestampCommande.before(currentTimestamp)) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(
@@ -131,7 +155,7 @@ public class CommandeRessource {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
-        Commande newCommande = this.cm.save(commande);
+        Commande newCommande = this.cm.save(c);
         URI uri = uriInfo.getAbsolutePathBuilder().path(newCommande.getId()).build();
         return Response.created(uri)
                 .entity(buildCommandeObject(newCommande))
@@ -153,6 +177,7 @@ public class CommandeRessource {
             @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
             SandwichChoix sc
     ) {
+        // TODO: tester si la taille est disponible pour le sandwich
         Commande cmd = this.cm.findById(id);
         if (cmd == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(
@@ -308,6 +333,7 @@ public class CommandeRessource {
             @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
             SandwichUpdate json
     ) {
+        // TODO: tester si la taille est disponible pour le sandwich
         Commande cmd = this.cm.findById(cmdId);
         if (cmd == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(
@@ -414,7 +440,7 @@ public class CommandeRessource {
             @PathParam("id") String id,
             @DefaultValue("") @QueryParam("token") String tokenParam,
             @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
-            Commande c
+            CommandeUpdateLivraison c
     ) {
         Commande cmd = this.cm.findById(id);
         if (cmd == null) {
@@ -442,10 +468,40 @@ public class CommandeRessource {
             ).build();
         } else {
             if (cmd.getStatut() == CommandeStatut.ATTENTE) {
-                cmd.setDateLivraison(c.getDateLivraison());
-                cmd.setHeureLivraison(c.getHeureLivraison());
+                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+                sdf.setTimeZone(TimeZone.getDefault());
 
-                return Response.ok(this.buildCommandeObject(cmd)).build();
+                Date current = Date.from(LocalDateTime.now()
+                        .atZone(ZoneId.systemDefault())
+                        .toInstant());
+
+                try {
+                    sdf.setLenient(false);
+                    Date dateCommande = sdf.parse(c.getDateLivraison() + " " + c.getHeureLivraison());
+                    Timestamp timestampCommande = new Timestamp(dateCommande.getTime());
+                    Timestamp currentTimestamp = new Timestamp(current.getTime());
+
+                    if (timestampCommande.before(currentTimestamp)) {
+                        return Response.status(Response.Status.BAD_REQUEST).entity(
+                                Json.createObjectBuilder()
+                                        .add("error", "La date de livraison est inférieure a la date courante")
+                                        .build()
+                        ).build();
+                    }
+
+                    cmd.setDateLivraison(timestampCommande);
+
+                    this.cm.update(cmd);
+
+                    return Response.ok(this.buildCommandeObject(cmd)).build();
+                } catch (ParseException pe) {
+                    pe.printStackTrace();
+                    return Response.status(Response.Status.BAD_REQUEST).entity(
+                            Json.createObjectBuilder()
+                                    .add("error", "La date de livraison est incorrecte")
+                                    .build()
+                    ).build();
+                }
             } else {
                 return Response.status(Response.Status.FORBIDDEN).entity(
                         Json.createObjectBuilder()
@@ -672,9 +728,15 @@ public class CommandeRessource {
     }
 
     private JsonObject buildJsonForLivraison(Commande c) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(c.getDateLivraison().getTime());
+
+        String dateLivraison = cal.get(Calendar.DATE) + ":" + (cal.get(Calendar.MONTH) + 1) + ":" + cal.get(Calendar.YEAR);
+        String heureLivraison = cal.get(Calendar.HOUR) + ":" + cal.get(Calendar.MINUTE);
+
         return Json.createObjectBuilder()
-                .add("date", c.getDateLivraison())
-                .add("heure", c.getHeureLivraison())
+                .add("date", dateLivraison)
+                .add("heure", heureLivraison)
                 .add("adresse", c.getAdresseLivraison())
                 .build();
     }
@@ -682,6 +744,18 @@ public class CommandeRessource {
     private JsonObject buildJsonForFacture(Commande c) {
         return Json.createObjectBuilder()
                 .add("facture", buildCommandeObject(c))
+                .build();
+    }
+
+    private JsonObject buildJsonCommandes(List<Commande> commandes) {
+        JsonArrayBuilder jab = Json.createArrayBuilder();
+
+        commandes.forEach(c -> {
+            jab.add(buildCommandeObject(c));
+        });
+
+        return Json.createObjectBuilder()
+                .add("commandes", jab.build())
                 .build();
     }
 }

@@ -3,11 +3,13 @@ package org.lpro.entity;
 import org.lpro.enums.CommandeStatut;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
+import javax.ws.rs.DefaultValue;
 
 @Entity
 public class Commande implements Serializable {
@@ -16,10 +18,7 @@ public class Commande implements Serializable {
     private String id;
 
     @NotNull
-    private String dateLivraison;
-
-    @NotNull
-    private String heureLivraison;
+    private Timestamp dateLivraison;
 
     @NotNull
     private String adresseLivraison;
@@ -37,14 +36,16 @@ public class Commande implements Serializable {
     @Enumerated(EnumType.STRING)
     private CommandeStatut statut;
 
+    @Column(name="created_at", columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private Timestamp created_at;
+
     @ManyToMany
     private Set<SandwichChoix> sandwichChoix = new HashSet<SandwichChoix>();
 
     public Commande() { }
 
-    public Commande(String dateLivraison, String heureLivraison, String adresseLivraison, String nom, String prenom, String mail) {
+    public Commande(Timestamp dateLivraison, String adresseLivraison, String nom, String prenom, String mail) {
         this.dateLivraison = dateLivraison;
-        this.heureLivraison = heureLivraison;
         this.adresseLivraison = adresseLivraison;
         this.nom = nom;
         this.prenom = prenom;
@@ -59,20 +60,12 @@ public class Commande implements Serializable {
         this.id = id;
     }
 
-    public String getDateLivraison() {
+    public Timestamp getDateLivraison() {
         return dateLivraison;
     }
 
-    public void setDateLivraison(String dateLivraison) {
+    public void setDateLivraison(Timestamp dateLivraison) {
         this.dateLivraison = dateLivraison;
-    }
-
-    public String getHeureLivraison() {
-        return heureLivraison;
-    }
-
-    public void setHeureLivraison(String heureLivraison) {
-        this.heureLivraison = heureLivraison;
     }
 
     public String getToken() {
@@ -129,5 +122,13 @@ public class Commande implements Serializable {
 
     public void setMail(String mail) {
         this.mail = mail;
+    }
+
+    public Timestamp getCreated_at() {
+        return created_at;
+    }
+
+    public void setCreated_at(Timestamp createdAt) {
+        this.created_at = createdAt;
     }
 }
