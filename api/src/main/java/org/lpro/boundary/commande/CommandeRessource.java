@@ -7,6 +7,8 @@ import org.lpro.boundary.sandwich.SandwichManager;
 import org.lpro.boundary.sandwichChoix.SandwichChoixManager;
 import org.lpro.boundary.taille.TailleManager;
 import org.lpro.entity.*;
+import org.lpro.entity.apiModels.PayCard;
+import org.lpro.entity.apiModels.SandwichUpdate;
 import org.lpro.enums.CommandeStatut;
 import org.lpro.provider.Secured;
 
@@ -295,6 +297,7 @@ public class CommandeRessource {
     @ApiOperation(value = "Modifie un sandwich d'une commande", notes = "Modifie un sandwich d'une commande à partir du JSON fourni")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 400, message = "Bad Request"),
             @ApiResponse(code = 403, message = "Forbidden"),
             @ApiResponse(code = 404, message = "Not Found"),
             @ApiResponse(code = 500, message = "Internal server error")})
@@ -303,7 +306,7 @@ public class CommandeRessource {
             @PathParam("scId") String scId,
             @DefaultValue("") @QueryParam("token") String tokenParam,
             @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
-            JsonObject json
+            SandwichUpdate json
     ) {
         Commande cmd = this.cm.findById(cmdId);
         if (cmd == null) {
@@ -333,30 +336,59 @@ public class CommandeRessource {
             if (cmd.getStatut() == CommandeStatut.ATTENTE) {
                 SandwichChoix sc = this.scm.findById(scId);
 
-                if (sc != null) {
-                    if (json.get("qte") != null) {
-                        sc.setQte(json.getInt("qte"));
-                    }
-                    if (json.get("taille") != null) {
-                        SandwichChoix sc2 = this.scm.findById(sc.getSandwich(), json.getString("taille"));
-
-                        if (sc2 != null) {
-                            sc2.setQte(sc2.getQte() + sc.getQte());
-                            this.scm.update(sc2);
-                            this.scm.delete(cmd, sc.getId());
-
-                            return Response.ok(buildCommandeObject(cmd)).build();
-                        } else {
-                            sc.setTaille(json.getString("taille"));
+                if (json != null) {
+                    if (sc != null) {
+                        if (json.getQte() != 0) {
+                            if (json.getQte() > 0) {
+                                sc.setQte(json.getQte());
+                            } else {
+                                return Response.status(Response.Status.BAD_REQUEST).entity(
+                                        Json.createObjectBuilder()
+                                                .add("error", "Quantité invalide")
+                                                .build()
+                                ).build();
+                            }
                         }
-                    }
-                    this.scm.update(sc);
+                        if (json.getTaille() != null) {
+                            Taille t = this.tm.findById(json.getTaille());
 
-                    return Response.ok(buildCommandeObject(cmd)).build();
+                            if (t != null) {
+                                SandwichChoix sc2 = this.scm.findById(sc.getSandwich(), json.getTaille());
+
+                                if (sc2 != null && cmd.getSandwichChoix().contains(sc2)) {
+                                    sc2.setQte(sc2.getQte() + sc.getQte());
+                                    this.scm.update(sc2);
+                                    if (!sc2.getId().equals(sc.getId())) {
+                                        this.scm.delete(cmd, sc.getId());
+                                    }
+
+                                    return Response.ok(buildCommandeObject(cmd)).build();
+                                } else {
+                                    sc.setTaille(json.getTaille());
+                                }
+                            } else {
+                                return Response.status(Response.Status.NOT_FOUND)
+                                        .entity(
+                                                Json.createObjectBuilder()
+                                                        .add("error", "La taille n'existe pas")
+                                                        .build()
+                                        ).build();
+                            }
+                        }
+                        this.scm.update(sc);
+
+                        return Response.ok(buildCommandeObject(cmd)).build();
+                    } else {
+                        return Response.status(Response.Status.NOT_FOUND).entity(
+                                Json.createObjectBuilder()
+                                        .add("error", "Le sandwichChoix n'existe pas dans la commande")
+                                        .build()
+                        ).build();
+                    }
                 } else {
-                    return Response.status(Response.Status.NOT_FOUND).entity(
+                    return Response.status(Response.Status.FORBIDDEN).entity(
                             Json.createObjectBuilder()
-                                    .add("error", "Le sandwichChoix n'existe pas dans la commande")
+                                    .add("error", "Aucune valeur du sandwich à modifier")
                                     .build()
                     ).build();
                 }
@@ -437,7 +469,7 @@ public class CommandeRessource {
             @PathParam("id") String id,
             @DefaultValue("") @QueryParam("token") String tokenParam,
             @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
-            JsonObject payCard
+            PayCard payCard
     ) {
         Commande cmd = this.cm.findById(id);
         if (cmd == null) {
@@ -465,8 +497,8 @@ public class CommandeRessource {
             ).build();
         } else {
             if (cmd.getStatut() == CommandeStatut.ATTENTE) {
-                if (payCard.get("nom") != null && payCard.get("numeroCarte") != null && payCard.get("cvv") != null && payCard.get("dateExpiration") != null) {
-                    if (payCard.getString("nom").matches("([a-zA-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ\\s-]+)") && payCard.getString("numeroCarte").matches("(([0-9]{4}(\\s|-)){3}([0-9]{4}))") && payCard.getString("cvv").matches("([0-9]{3})")) {
+                if (payCard.getNom() != null && payCard.getNumeroCarte() != null && payCard.getCvv() != null && payCard.getDateExpiration() != null) {
+                    if (payCard.getNom().matches("([a-zA-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ\\s-]+)") && payCard.getNumeroCarte().matches("(([0-9]{4}(\\s|-)){3}([0-9]{4}))") && payCard.getCvv().matches("([0-9]{3})")) {
 
                         SimpleDateFormat sdf = new SimpleDateFormat("MM-yy");
                         sdf.setTimeZone(TimeZone.getDefault());
@@ -476,13 +508,13 @@ public class CommandeRessource {
                                 .toInstant());
                         try {
                             sdf.setLenient(false);
-                            Date dateExpiration = sdf.parse(payCard.getString("dateExpiration"));
+                            Date dateExpiration = sdf.parse(payCard.getDateExpiration());
                             Timestamp currentTimestamp = new Timestamp(current.getTime());
                             Timestamp timestampExpiration = new Timestamp(dateExpiration.getTime());
 
                             if (timestampExpiration.after(currentTimestamp)) {
-                                if (payCard.get("numeroCarteFidelite") != null) {
-                                    Carte card = this.cardman.findByNumCarte(payCard.getString("numeroCarteFidelite"));
+                                if (payCard.getNumeroCarteFidelite() != null) {
+                                    Carte card = this.cardman.findByNumCarte(payCard.getNumeroCarteFidelite());
 
                                     if (card != null) {
                                         double total = cmd.getSandwichChoix().stream().mapToDouble(sc -> (this.tm.findById(sc.getTaille()).getPrix() * sc.getQte())).sum();
@@ -508,8 +540,11 @@ public class CommandeRessource {
                                 ).build();
                             }
                         } catch (ParseException pe) {
-                            pe.printStackTrace();
-                            return Response.status(Response.Status.BAD_REQUEST).build();
+                            return Response.status(Response.Status.BAD_REQUEST).entity(
+                                    Json.createObjectBuilder()
+                                            .add("error", "La date d'expiration est incorrecte")
+                                            .build()
+                            ).build();
                         }
                     } else {
                         return Response.status(Response.Status.FORBIDDEN).entity(
