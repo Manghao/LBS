@@ -177,6 +177,7 @@ public class CommandeRessource {
             @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
             SandwichChoix sc
     ) {
+        // TODO: tester si la taille est disponible pour le sandwich
         Commande cmd = this.cm.findById(id);
         if (cmd == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(
@@ -332,6 +333,7 @@ public class CommandeRessource {
             @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
             SandwichUpdate json
     ) {
+        // TODO: tester si la taille est disponible pour le sandwich
         Commande cmd = this.cm.findById(cmdId);
         if (cmd == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(
