@@ -21,9 +21,17 @@ public class CommandeManager {
         return this.em.find(Commande.class, id);
     }
 
-    public List<Commande> findAll() {
-        Query q = this.em.createQuery("SELECT c FROM Commande c");
+    public List<Commande> findAll(String statut) {
+        String query = "SELECT c FROM Commande c ";
+
+        if (statut != null) {
+            query += "WHERE c.statut = '" + statut.toUpperCase() + "' ";
+        }
+
+        query += "ORDER BY c.created_at, c.dateLivraison";
+        Query q = this.em.createQuery(query);
         q.setHint("javax.persistence.cache.storeMode", CacheStoreMode.REFRESH);
+
         return q.getResultList();
     }
 
@@ -32,6 +40,10 @@ public class CommandeManager {
         c.setToken(new RandomToken().randomString(64));
         c.setId(UUID.randomUUID().toString());
 
+        return this.em.merge(c);
+    }
+
+    public Commande update(Commande c) {
         return this.em.merge(c);
     }
 
