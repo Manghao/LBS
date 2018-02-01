@@ -26,7 +26,7 @@ public class Carte {
     @NotNull
     private String password;
 
-    private int montant;
+    private double montant;
 
     public Carte() { }
 
@@ -66,11 +66,11 @@ public class Carte {
         this.password = password;
     }
 
-    public int getMontant() {
+    public double getMontant() {
         return montant;
     }
 
-    public void setMontant(int montant) {
+    public void setMontant(double montant) {
         this.montant = montant;
     }
 

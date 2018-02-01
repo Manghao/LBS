@@ -60,16 +60,18 @@ public class CommandeManager {
                 sc.setId(sc2.getId());
                 sc.setCommande(sc2.getCommande());
                 sc.setQte(sc2.getQte() + sc.getQte());
+
+                this.em.merge(sc);
             } catch (NoResultException e) {
                 sc.setId(UUID.randomUUID().toString());
                 sc.getCommande().add(cmd);
                 sc.setQte(sc.getQte());
+
+                this.em.merge(sc);
+
+                cmd.getSandwichChoix().add(sc);
+                this.em.persist(cmd);
             }
-
-            this.em.merge(sc);
-
-            cmd.getSandwichChoix().add(sc);
-            this.em.persist(cmd);
 
             return sc;
         } catch (NoResultException e) {

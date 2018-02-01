@@ -17,12 +17,17 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.lpro.control.KeyManagement;
 import org.lpro.control.PasswordManagement;
 import org.lpro.entity.Utilisateur;
 import org.mindrot.jbcrypt.BCrypt;
 
 @Path("/authentification")
+@Api(value = "Utilisateur")
 public class UtilisateurBoundary {
 
     @Inject
@@ -37,6 +42,11 @@ public class UtilisateurBoundary {
     @POST
     @Produces("application/json")
     @Consumes("application/json")
+    @ApiOperation(value = "Authentifie un utilisateur", notes = "Authentifie un utilisateur à partir du JSON fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response authentifieUtilisateur(Utilisateur utilisateur) {
         try {
             String mail = utilisateur.getMail();

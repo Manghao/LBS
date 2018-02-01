@@ -1,5 +1,9 @@
 package org.lpro.boundary.sandwich;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.lpro.boundary.categorie.CategorieManager;
 import org.lpro.boundary.categorie.CategorieRessource;
 import org.lpro.boundary.sandwich.exception.SandwichNotFound;
@@ -25,6 +29,7 @@ import java.net.URI;
 @Path("sandwichs")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Api(value = "Sandwich")
 public class SandwichRessource {
 
     @Inject
@@ -36,19 +41,11 @@ public class SandwichRessource {
     @Context
     UriInfo uriInfo;
 
-    /**
-     * @api {get} /sandwichs Récupérer tous les sandwichs
-     * @apiName getSandwichs
-     * @apiGroup Sandwich
-     *
-     * @apiParam {Int}[optional] page numéro de la page courante.
-     * @apiParam {Int}[optional] size nombre de sandwichs à afficher dans une page.
-     * @apiParam {String}[optional] t type de pain des sandwich.
-     * @apiParam {Int}[optional] img permet de récupérer les sandwichs ayant une image ou non.
-     *
-     * @apiSuccess {List} sandwichs Liste des sandwichs.
-     */
     @GET
+    @ApiOperation(value = "Récupère tous les sandwichs", notes = "Renvoie le JSON associé à la collection de sandwichs")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response getSandwichs(
             @DefaultValue("1") @QueryParam("page") int page,
             @DefaultValue("10") @QueryParam("size") int nbPerPage,
@@ -63,50 +60,36 @@ public class SandwichRessource {
         return Response.ok(json).build();
     }
 
-    /**
-     * @api {get} /sandwichs/:id Récupérer un sandwich
-     * @apiName getOneSandwich
-     * @apiGroup Sandwich
-     *
-     * @apiParam {String} id ID unique d'un sandwich.
-     * @apiParam {Int}[optional] details permet d'afficher la description détaillée ou non d'un sandwich.
-     *
-     * @apiSuccess {Sandwich} sandwich Un sandwich.
-     * @apiError SandwichNotFound L'<code>id</code> du sandwich n'existe pas.
-     */
     @GET
     @Path("{id}")
+    @ApiOperation(value = "Récupère un sandwich", notes = "Renvoie le JSON associé au sandwich")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response getOneSandwich(@PathParam("id") String id, @DefaultValue("0") @QueryParam("details") int details, @Context UriInfo uriInfo) {
         return Optional.ofNullable(this.sm.findById(id))
                 .map(s -> Response.ok((details == 0) ? sandwichJson(s): sandwich2Json(s)).build())
                 .orElseThrow(() -> new SandwichNotFound("Ressource non disponible" + uriInfo.getPath()));
     }
 
-    /**
-     * @api {get} /sandwichs/:id/categories Récupérer les catégories d'un sandwich
-     * @apiName getSandwichCategories
-     * @apiGroup Sandwich
-     *
-     * @apiParam {String} id ID unique d'un sandwich.
-     *
-     * @apiSuccess {List} categories Les catégories d'un sandwich.
-     */
     @GET
     @Path("{id}/categories")
+    @ApiOperation(value = "Récupère toutes les catégories d'un sandwich", notes = "Renvoie le JSON associé à la collection de catégories")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response getSandwichCategories(@PathParam("id") String id, @Context UriInfo uriInfo) {
         return Optional.ofNullable(this.sm.findById(id))
                 .map(s -> Response.ok(this.buildCategorieObject(s)).build())
                 .orElseThrow(() -> new SandwichNotFound("Ressource non disponible" + uriInfo.getPath()));
     }
 
-    /**
-     * @api {post} /sandwichs Créer un nouveau sandwich
-     * @apiName newSandwich
-     * @apiGroup Sandwich
-     *
-     * @apiSuccess {Sandwich} sandwich Le sandwich nouvellement créé.
-     */
     @POST
+    @ApiOperation(value = "Crée un sandwich", notes = "Crée un sandwich à partir du JSON fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Created"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response newSandwich(@Valid Sandwich s, @Context UriInfo uriInfo) {
         Sandwich sand = this.sm.save(s);
         String id = sand.getId();
@@ -114,36 +97,59 @@ public class SandwichRessource {
         return Response.created(uri).entity(buildJson(sand)).build();
     }
 
-    /**
-     * @api {delete} /sandwichs/:id Supprimer un sandwich
-     * @apiName removeSandwich
-     * @apiGroup Sandwich
-     *
-     * @apiParam {String} id ID unique d'un sandwich.
-     *
-     * @apiSuccess {Status} status Retourne le code 204 (No Content).
-     */
     @DELETE
     @Path("{id}")
+    @ApiOperation(value = "Supprime un sandwich", notes = "Supprime le sandwich dont l'ID est fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 204, message = "No content"),
+            @ApiResponse(code = 500, message = "Internal server error")})
     public Response removeSandwich(@PathParam("id") String id) {
         this.sm.delete(id);
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
-    /**
-     * @api {put} /sandwichs/:id Modifier un sandwich
-     * @apiName updateSandwich
-     * @apiGroup Sandwich
-     *
-     * @apiParam {String} id ID unique d'un sandwich.
-     *
-     * @apiSuccess {Sandwich} sandwich Le sandwich modifié.
-     */
     @PUT
     @Path("{id}")
-    public Sandwich updateSandwich(@PathParam("id") String id, Sandwich s) {
-        s.setId(id);
-        return this.sm.save(s);
+    @ApiOperation(value = "Modifie un sandwich", notes = "Modifie le sandwich dont l'ID est fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    public Response updateSandwich(@PathParam("id") String id, Sandwich s) {
+        Sandwich sand = this.sm.findById(id);
+
+        if (sand != null) {
+            if (s.getNom() != null) {
+                if (!s.getNom().equals(""))
+                    sand.setNom(s.getNom());
+            }
+            if (s.getDescription() != null) {
+                if (!s.getDescription().equals(""))
+                    sand.setDescription(s.getDescription());
+            }
+            if (s.getType_pain() != null) {
+                if (!s.getType_pain().equals(""))
+                    sand.setType_pain(s.getType_pain());
+            }
+            if (s.getImg() != null) {
+                if (!s.getImg().equals(""))
+                    sand.setImg(s.getImg());
+            }
+            if (s.getCategorie().size() > 0)
+                sand.setCategorie(s.getCategorie());
+            if (s.getTaille().size() > 0)
+                sand.setTaille(s.getTaille());
+
+            this.sm.update(sand);
+
+            return Response.ok(buildJson(sand)).build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le sandwich " + id + " n'existe pas")
+                            .build()
+            ).build();
+        }
     }
 
     private JsonArray getSandwichsList(List<Sandwich> sandwichs) {
@@ -196,7 +202,7 @@ public class SandwichRessource {
                 .add("id", s.getId())
                 .add("nom", s.getNom())
                 .add("description", s.getDescription())
-                .add("type_pain", s.getTypePain())
+                .add("type_pain", s.getType_pain())
                 .add("img", ((s.getImg() == null) ? "" : s.getImg()))
                 .add("categories", categories)
                 .add("tailles", tailles)
@@ -228,7 +234,7 @@ public class SandwichRessource {
                 .add("id", s.getId())
                 .add("nom", s.getNom())
                 .add("description", s.getDescription())
-                .add("type_pain", s.getTypePain())
+                .add("type_pain", s.getType_pain())
                 .add("img", ((s.getImg() == null) ? "" : s.getImg()))
                 .build();
 

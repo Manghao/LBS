@@ -1,7 +1,6 @@
 package org.lpro.entity;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -45,7 +44,7 @@ public class Sandwich implements Serializable {
     public Sandwich(Sandwich s) {
         this.id = s.getId();
         this.nom = s.getNom();
-        this.type_pain = s.getTypePain();
+        this.type_pain = s.getType_pain();
         this.description = s.getDescription();
         this.img = s.getImg();
     }
@@ -66,11 +65,11 @@ public class Sandwich implements Serializable {
         this.nom = nom;
     }
 
-    public String getTypePain() {
+    public String getType_pain() {
         return type_pain;
     }
 
-    public void setTypePain(String pain) {
+    public void setType_pain(String pain) {
         this.type_pain = pain;
     }
 
