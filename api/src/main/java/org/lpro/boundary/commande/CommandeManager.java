@@ -48,47 +48,29 @@ public class CommandeManager {
     }
 
     public SandwichChoix addSandwichChoix(Commande cmd, SandwichChoix sc) {
-        Sandwich s;
-        TypedQuery<Sandwich> query = this.em.createQuery("SELECT s FROM Sandwich s WHERE s.id = :id", Sandwich.class);
-        query.setParameter("id", sc.getSandwich());
+        TypedQuery<SandwichChoix> qSc = this.em.createQuery("SELECT sc FROM SandwichChoix sc WHERE sc.sandwich = :sid AND sc.taille = :tid", SandwichChoix.class);
+        qSc.setParameter("sid", sc.getSandwich());
+        qSc.setParameter("tid", sc.getTaille());
+
         try {
-            s = query.getSingleResult();
+            SandwichChoix sc2 = qSc.getSingleResult();
+            sc.setId(sc2.getId());
+            sc.setCommande(sc2.getCommande());
+            sc.setQte(sc2.getQte() + sc.getQte());
+
+            this.em.merge(sc);
         } catch (NoResultException e) {
-            return null;
+            sc.setId(UUID.randomUUID().toString());
+            sc.getCommande().add(cmd);
+            sc.setQte(sc.getQte());
+
+            this.em.merge(sc);
+
+            cmd.getSandwichChoix().add(sc);
+            this.em.persist(cmd);
         }
 
-        Taille t;
-        TypedQuery<Taille> qTaille = this.em.createQuery("SELECT t FROM Taille t WHERE t.id = :id", Taille.class);
-        qTaille.setParameter("id", sc.getTaille());
-        try {
-            t = qTaille.getSingleResult();
-
-            TypedQuery<SandwichChoix> qSc = this.em.createQuery("SELECT sc FROM SandwichChoix sc WHERE sc.sandwich = :sid AND sc.taille = :tid", SandwichChoix.class);
-            qSc.setParameter("sid", sc.getSandwich());
-            qSc.setParameter("tid", sc.getTaille());
-
-            try {
-                SandwichChoix sc2 = qSc.getSingleResult();
-                sc.setId(sc2.getId());
-                sc.setCommande(sc2.getCommande());
-                sc.setQte(sc2.getQte() + sc.getQte());
-
-                this.em.merge(sc);
-            } catch (NoResultException e) {
-                sc.setId(UUID.randomUUID().toString());
-                sc.getCommande().add(cmd);
-                sc.setQte(sc.getQte());
-
-                this.em.merge(sc);
-
-                cmd.getSandwichChoix().add(sc);
-                this.em.persist(cmd);
-            }
-
-            return sc;
-        } catch (NoResultException e) {
-            return null;
-        }
+        return sc;
     }
 
     public boolean deleteSandwich(Commande cmd, SandwichChoix sc) {

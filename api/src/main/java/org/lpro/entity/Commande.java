@@ -36,7 +36,6 @@ public class Commande implements Serializable {
     @Enumerated(EnumType.STRING)
     private CommandeStatut statut;
 
-    @Column(name="created_at", columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private Timestamp created_at;
 
     @ManyToMany
@@ -44,12 +43,13 @@ public class Commande implements Serializable {
 
     public Commande() { }
 
-    public Commande(Timestamp dateLivraison, String adresseLivraison, String nom, String prenom, String mail) {
+    public Commande(Timestamp dateLivraison, String adresseLivraison, String nom, String prenom, String mail, Timestamp createdAt) {
         this.dateLivraison = dateLivraison;
         this.adresseLivraison = adresseLivraison;
         this.nom = nom;
         this.prenom = prenom;
         this.mail = mail;
+        this.created_at = createdAt;
     }
 
     public String getId() {

@@ -141,7 +141,7 @@ public class CommandeRessource {
             Timestamp currentTimestamp = new Timestamp(current.getTime());
             Timestamp timestampCommande = new Timestamp(dateCommande.getTime());
 
-            c = new Commande(timestampCommande, commande.getAdresseLivraison(), commande.getNom(), commande.getPrenom(), commande.getMail());
+            c = new Commande(timestampCommande, commande.getAdresseLivraison(), commande.getNom(), commande.getPrenom(), commande.getMail(), currentTimestamp);
 
             if (timestampCommande.before(currentTimestamp)) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(
@@ -177,7 +177,6 @@ public class CommandeRessource {
             @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
             SandwichChoix sc
     ) {
-        // TODO: tester si la taille est disponible pour le sandwich
         Commande cmd = this.cm.findById(id);
         if (cmd == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(
@@ -205,14 +204,34 @@ public class CommandeRessource {
         } else {
             if (cmd.getStatut() == CommandeStatut.ATTENTE) {
                 if (sc.getQte() > 0) {
-                    sc = this.cm.addSandwichChoix(cmd, sc);
+                    Sandwich s = this.sm.findById(sc.getSandwich());
 
-                    if (sc != null) {
-                        return Response.ok(buildCommandeObject(cmd)).build();
+                    if (s != null) {
+                        Taille t = this.tm.findById(sc.getTaille());
+
+                        if (t != null) {
+                            if (s.getTaille().contains(t)) {
+                                this.cm.addSandwichChoix(cmd, sc);
+
+                                return Response.ok(buildCommandeObject(cmd)).build();
+                            } else {
+                                return Response.status(Response.Status.FORBIDDEN).entity(
+                                        Json.createObjectBuilder()
+                                                .add("error", "La taille est indisponible pour ce sandwich")
+                                                .build()
+                                ).build();
+                            }
+                        } else {
+                            return Response.status(Response.Status.NOT_FOUND).entity(
+                                    Json.createObjectBuilder()
+                                            .add("error", "La taille est introuvable")
+                                            .build()
+                            ).build();
+                        }
                     } else {
                         return Response.status(Response.Status.NOT_FOUND).entity(
                                 Json.createObjectBuilder()
-                                        .add("error", "Le sandwich ou la taille est introuvable")
+                                        .add("error", "Le sandwich est introuvable")
                                         .build()
                         ).build();
                     }
@@ -333,7 +352,6 @@ public class CommandeRessource {
             @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
             SandwichUpdate json
     ) {
-        // TODO: tester si la taille est disponible pour le sandwich
         Commande cmd = this.cm.findById(cmdId);
         if (cmd == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(
@@ -379,18 +397,28 @@ public class CommandeRessource {
                             Taille t = this.tm.findById(json.getTaille());
 
                             if (t != null) {
-                                SandwichChoix sc2 = this.scm.findById(sc.getSandwich(), json.getTaille());
+                                Sandwich s = this.sm.findById(sc.getSandwich());
 
-                                if (sc2 != null && cmd.getSandwichChoix().contains(sc2)) {
-                                    sc2.setQte(sc2.getQte() + sc.getQte());
-                                    this.scm.update(sc2);
-                                    if (!sc2.getId().equals(sc.getId())) {
-                                        this.scm.delete(cmd, sc.getId());
+                                if (s.getTaille().contains(t)) {
+                                    SandwichChoix sc2 = this.scm.findById(sc.getSandwich(), json.getTaille());
+
+                                    if (sc2 != null && cmd.getSandwichChoix().contains(sc2)) {
+                                        sc2.setQte(sc2.getQte() + sc.getQte());
+                                        this.scm.update(sc2);
+                                        if (!sc2.getId().equals(sc.getId())) {
+                                            this.scm.delete(cmd, sc.getId());
+                                        }
+
+                                        return Response.ok(buildCommandeObject(cmd)).build();
+                                    } else {
+                                        sc.setTaille(json.getTaille());
                                     }
-
-                                    return Response.ok(buildCommandeObject(cmd)).build();
                                 } else {
-                                    sc.setTaille(json.getTaille());
+                                    return Response.status(Response.Status.FORBIDDEN).entity(
+                                            Json.createObjectBuilder()
+                                                    .add("error", "La taille est indisponible pour ce sandwich")
+                                                    .build()
+                                    ).build();
                                 }
                             } else {
                                 return Response.status(Response.Status.NOT_FOUND)
