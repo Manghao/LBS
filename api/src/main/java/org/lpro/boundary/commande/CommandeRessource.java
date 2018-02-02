@@ -78,6 +78,7 @@ public class CommandeRessource {
 
     @GET
     @Path("{id}")
+    @Secured
     @ApiOperation(value = "Récupère une commande", notes = "Renvoie le JSON associé à la commande")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK"),
@@ -116,6 +117,49 @@ public class CommandeRessource {
             ).build();
         } else {
             return Response.ok(this.buildCommandeObject(cmd)).build();
+        }
+    }
+
+    @GET
+    @Path("{id}/statut")
+    @ApiOperation(value = "Récupère l'état d'une commande", notes = "Renvoie le JSON associé à l'état de la commande")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    public Response getCommandeStatut(
+            @PathParam("id") String id,
+            @DefaultValue("") @QueryParam("token") String tokenParam,
+            @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader
+    ) {
+        Commande cmd = this.cm.findById(id);
+        if (cmd == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "La commande n'existe pas")
+                            .build()
+            ).build();
+        }
+
+        if (tokenParam.isEmpty() && tokenHeader.isEmpty()) {
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'existe pas")
+                            .build()
+            ).build();
+        }
+
+        String token = (tokenParam.isEmpty()) ? tokenHeader : tokenParam;
+
+        if (!cmd.getToken().equals(token)) {
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'est pas le bon")
+                            .build()
+            ).build();
+        } else {
+            return Response.ok(this.buildJsonCommandeStatut(cmd)).build();
         }
     }
 
@@ -784,6 +828,14 @@ public class CommandeRessource {
 
         return Json.createObjectBuilder()
                 .add("commandes", jab.build())
+                .build();
+    }
+
+    private JsonObject buildJsonCommandeStatut(Commande c) {
+        return Json.createObjectBuilder()
+                .add("commande", Json.createObjectBuilder()
+                        .add("état", c.getStatut().toString())
+                        .build())
                 .build();
     }
 }
