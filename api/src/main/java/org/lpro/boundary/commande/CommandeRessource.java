@@ -159,7 +159,7 @@ public class CommandeRessource {
                             .build()
             ).build();
         } else {
-            return Response.ok(this.buildJsonCommandeStatut(cmd)).build();
+            return Response.ok(buildJsonCommandeStatut(cmd)).build();
         }
     }
 
@@ -803,7 +803,7 @@ public class CommandeRessource {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(c.getDateLivraison().getTime());
 
-        String dateLivraison = cal.get(Calendar.DATE) + ":" + (cal.get(Calendar.MONTH) + 1) + ":" + cal.get(Calendar.YEAR);
+        String dateLivraison = cal.get(Calendar.DATE) + "-" + (cal.get(Calendar.MONTH) + 1) + "-" + cal.get(Calendar.YEAR);
         String heureLivraison = cal.get(Calendar.HOUR) + ":" + cal.get(Calendar.MINUTE);
 
         return Json.createObjectBuilder()
@@ -833,9 +833,11 @@ public class CommandeRessource {
 
     private JsonObject buildJsonCommandeStatut(Commande c) {
         return Json.createObjectBuilder()
-                .add("commande", Json.createObjectBuilder()
-                        .add("état", c.getStatut().toString())
-                        .build())
+                .add("id", c.getId())
+                .add("livraison", buildJsonForLivraison(c))
+                .add("token", c.getToken())
+                .add("statut", c.getStatut().toString())
+                .add("client", this.buildClient(c))
                 .build();
     }
 }
