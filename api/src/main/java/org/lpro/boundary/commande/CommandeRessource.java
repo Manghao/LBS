@@ -162,6 +162,7 @@ public class CommandeRessource {
 
     @PUT
     @Path("{id}/statut")
+    @Secured
     @ApiOperation(value = "Change le statut d'une commande", notes = "Change le statut d'une commande à partir du JSON fourni")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK"),
