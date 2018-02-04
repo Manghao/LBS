@@ -7,10 +7,7 @@ import org.lpro.boundary.sandwich.SandwichManager;
 import org.lpro.boundary.sandwichChoix.SandwichChoixManager;
 import org.lpro.boundary.taille.TailleManager;
 import org.lpro.entity.*;
-import org.lpro.entity.apiModels.CommandeUpdateLivraison;
-import org.lpro.entity.apiModels.NewCommande;
-import org.lpro.entity.apiModels.PayCard;
-import org.lpro.entity.apiModels.SandwichUpdate;
+import org.lpro.entity.apiModels.*;
 import org.lpro.enums.CommandeStatut;
 import org.lpro.provider.Secured;
 
@@ -160,6 +157,89 @@ public class CommandeRessource {
             ).build();
         } else {
             return Response.ok(buildJsonCommandeStatut(cmd)).build();
+        }
+    }
+
+    @PUT
+    @Path("{id}/statut")
+    @ApiOperation(value = "Change le statut d'une commande", notes = "Change le statut d'une commande à partir du JSON fourni")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not Found"),
+            @ApiResponse(code = 500, message = "Internal server error")})
+    public Response updateCommandeStatut(
+            @PathParam("id") String id,
+            @DefaultValue("") @QueryParam("token") String tokenParam,
+            @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
+            CommandeUpdateStatut updateStatut
+    ) {
+        Commande cmd = this.cm.findById(id);
+        if (cmd == null) {
+            return Response.status(Response.Status.NOT_FOUND).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "La commande n'existe pas")
+                            .build()
+            ).build();
+        }
+
+        if (tokenParam.isEmpty() && tokenHeader.isEmpty()) {
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'existe pas")
+                            .build()
+            ).build();
+        }
+
+        String token = (tokenParam.isEmpty()) ? tokenHeader : tokenParam;
+
+        if (!cmd.getToken().equals(token)) {
+            return Response.status(Response.Status.FORBIDDEN).entity(
+                    Json.createObjectBuilder()
+                            .add("error", "Le token n'est pas le bon")
+                            .build()
+            ).build();
+        } else {
+            if (updateStatut != null) {
+                if (cmd.getStatut() != CommandeStatut.EXPEDIEE) {
+                    switch (updateStatut.getStatut().toUpperCase()) {
+                        case "ATTENTE":
+                            cmd.setStatut(CommandeStatut.ATTENTE);
+                            break;
+                        case "PAYEE":
+                            cmd.setStatut(CommandeStatut.PAYEE);
+                            break;
+                        case "PREPARATION":
+                            cmd.setStatut(CommandeStatut.PREPARATION);
+                            break;
+                        case "EXPEDIEE":
+                            cmd.setStatut(CommandeStatut.EXPEDIEE);
+                            break;
+                        default:
+                            return Response.status(Response.Status.NOT_FOUND).entity(
+                                    Json.createObjectBuilder()
+                                            .add("error", "Le statut n'existe pas")
+                                            .build()
+                            ).build();
+                    }
+
+                    this.cm.update(cmd);
+
+                    return Response.ok(buildCommandeObject(cmd, false)).build();
+                } else {
+                    return Response.status(Response.Status.FORBIDDEN).entity(
+                            Json.createObjectBuilder()
+                                    .add("error", "La commande a déjà été expédiée")
+                                    .build()
+                    ).build();
+                }
+            } else {
+                return Response.status(Response.Status.FORBIDDEN).entity(
+                        Json.createObjectBuilder()
+                                .add("error", "Le statut est introuvable")
+                                .build()
+                ).build();
+            }
         }
     }
 
