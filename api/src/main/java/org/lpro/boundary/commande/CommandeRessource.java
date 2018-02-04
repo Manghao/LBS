@@ -116,7 +116,7 @@ public class CommandeRessource {
                             .build()
             ).build();
         } else {
-            return Response.ok(this.buildCommandeObject(cmd)).build();
+            return Response.ok(this.buildCommandeObject(cmd, false)).build();
         }
     }
 
@@ -202,7 +202,7 @@ public class CommandeRessource {
         Commande newCommande = this.cm.save(c);
         URI uri = uriInfo.getAbsolutePathBuilder().path(newCommande.getId()).build();
         return Response.created(uri)
-                .entity(buildCommandeObject(newCommande))
+                .entity(buildCommandeObject(newCommande, false))
                 .build();
     }
 
@@ -257,7 +257,7 @@ public class CommandeRessource {
                             if (s.getTaille().contains(t)) {
                                 this.cm.addSandwichChoix(cmd, sc);
 
-                                return Response.ok(buildCommandeObject(cmd)).build();
+                                return Response.ok(buildCommandeObject(cmd, false)).build();
                             } else {
                                 return Response.status(Response.Status.FORBIDDEN).entity(
                                         Json.createObjectBuilder()
@@ -354,7 +354,7 @@ public class CommandeRessource {
                     }
 
                     if (res) {
-                        return Response.ok(buildCommandeObject(cmd)).build();
+                        return Response.ok(buildCommandeObject(cmd, false)).build();
                     } else {
                         return Response.status(Response.Status.NOT_FOUND)
                                 .entity(
@@ -453,7 +453,7 @@ public class CommandeRessource {
                                             this.scm.delete(cmd, sc.getId());
                                         }
 
-                                        return Response.ok(buildCommandeObject(cmd)).build();
+                                        return Response.ok(buildCommandeObject(cmd, false)).build();
                                     } else {
                                         sc.setTaille(json.getTaille());
                                     }
@@ -475,7 +475,7 @@ public class CommandeRessource {
                         }
                         this.scm.update(sc);
 
-                        return Response.ok(buildCommandeObject(cmd)).build();
+                        return Response.ok(buildCommandeObject(cmd, false)).build();
                     } else {
                         return Response.status(Response.Status.NOT_FOUND).entity(
                                 Json.createObjectBuilder()
@@ -565,7 +565,7 @@ public class CommandeRessource {
 
                     this.cm.update(cmd);
 
-                    return Response.ok(this.buildCommandeObject(cmd)).build();
+                    return Response.ok(this.buildCommandeObject(cmd,false)).build();
                 } catch (ParseException pe) {
                     pe.printStackTrace();
                     return Response.status(Response.Status.BAD_REQUEST).entity(
@@ -599,6 +599,7 @@ public class CommandeRessource {
             @DefaultValue("") @HeaderParam("X-lbs-token") String tokenHeader,
             PayCard payCard
     ) {
+
         Commande cmd = this.cm.findById(id);
         if (cmd == null) {
             return Response.status(Response.Status.NOT_FOUND).entity(
@@ -641,12 +642,18 @@ public class CommandeRessource {
                             Timestamp timestampExpiration = new Timestamp(dateExpiration.getTime());
 
                             if (timestampExpiration.after(currentTimestamp)) {
+                                double total = cmd.getSandwichChoix().stream().mapToDouble(sc -> (this.tm.findById(sc.getTaille()).getPrix() * sc.getQte())).sum();
+                                boolean reduction = false;
+
                                 if (payCard.getNumeroCarteFidelite() != null) {
                                     Carte card = this.cardman.findByNumCarte(payCard.getNumeroCarteFidelite());
 
                                     if (card != null) {
-                                        double total = cmd.getSandwichChoix().stream().mapToDouble(sc -> (this.tm.findById(sc.getTaille()).getPrix() * sc.getQte())).sum();
-
+                                        if (card.getMontant() >= 100) {
+                                            reduction = true;
+                                            total = (total * 0.95);
+                                            card.setMontant(card.getMontant() - 100);
+                                        }
                                         card.setMontant(card.getMontant() + total);
                                     } else {
                                         return Response.status(Response.Status.NOT_FOUND).entity(
@@ -659,7 +666,7 @@ public class CommandeRessource {
 
                                 cmd.setStatut(CommandeStatut.PAYEE);
 
-                                return Response.ok(buildCommandeObject(cmd)).build();
+                                return Response.ok(buildCommandeObject(cmd, reduction)).build();
                             } else {
                                 return Response.status(Response.Status.FORBIDDEN).entity(
                                         Json.createObjectBuilder()
@@ -749,9 +756,9 @@ public class CommandeRessource {
         }
     }
 
-    private JsonObject buildCommandeObject(Commande c) {
+    private JsonObject buildCommandeObject(Commande c, boolean reduction) {
         return Json.createObjectBuilder()
-                .add("commande", buildJsonForCommande(c))
+                .add("commande", buildJsonForCommande(c, reduction))
                 .build();
     }
 
@@ -763,10 +770,15 @@ public class CommandeRessource {
                 .build();
     }
 
-    private JsonArray buildSandwichsCommande(Commande c) {
+    private JsonArray buildSandwichsCommande(Commande c, boolean reduction) {
         Set<SandwichChoix> setSC = c.getSandwichChoix();
         JsonArrayBuilder jab = Json.createArrayBuilder();
+
         double total = setSC.stream().mapToDouble(sc -> (this.tm.findById(sc.getTaille()).getPrix() * sc.getQte())).sum();
+        if (reduction) {
+            total = (total * 0.95);
+        }
+
         setSC.forEach((sc) -> {
             Sandwich s = this.sm.findById(sc.getSandwich());
             Taille t = this.tm.findById(sc.getTaille());
@@ -788,14 +800,14 @@ public class CommandeRessource {
         return jab.build();
     }
 
-    private JsonObject buildJsonForCommande(Commande c) {
+    private JsonObject buildJsonForCommande(Commande c, boolean reduction) {
         return Json.createObjectBuilder()
                 .add("id", c.getId())
                 .add("livraison", buildJsonForLivraison(c))
                 .add("token", c.getToken())
                 .add("statut", c.getStatut().toString())
                 .add("client", this.buildClient(c))
-                .add("sandwichs", this.buildSandwichsCommande(c))
+                .add("sandwichs", this.buildSandwichsCommande(c, reduction))
                 .build();
     }
 
@@ -815,7 +827,7 @@ public class CommandeRessource {
 
     private JsonObject buildJsonForFacture(Commande c) {
         return Json.createObjectBuilder()
-                .add("facture", buildCommandeObject(c))
+                .add("facture", buildCommandeObject(c, false))
                 .build();
     }
 
@@ -823,7 +835,7 @@ public class CommandeRessource {
         JsonArrayBuilder jab = Json.createArrayBuilder();
 
         commandes.forEach(c -> {
-            jab.add(buildCommandeObject(c));
+            jab.add(buildCommandeObject(c, false));
         });
 
         return Json.createObjectBuilder()
