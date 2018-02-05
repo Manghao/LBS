@@ -10,3 +10,7 @@ Projet JEE - LP CISIIE - 2017/2018
 - [WAR](https://github.com/Manghao/LBS/tree/master/dist)
 - [Données SQL](https://github.com/Manghao/LBS/tree/master/sql)
 - [Documentation API](https://app.swaggerhub.com/apis/lbsjee/service-sandwichs/1.0)
+
+# Utilisateur demo
+  - email: lbs@lbs.fr
+  - password: lbs
