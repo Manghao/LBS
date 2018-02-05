@@ -1,0 +1,1 @@
+INSERT INTO "public"."utilisateur" VALUES ('abcd', 'lbs@lbs.fr', 'lbs', '$10$kZecWUE703z231XBOP4PvOonWSZ247ByE5OupCD/xggjze1Xk9OI6', 'lbs');
